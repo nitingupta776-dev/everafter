@@ -96,13 +96,31 @@ flutter test
 Open `/admin/gallery` in the web app to sign in and arrange the cinematic
 gallery walls. The route, database writes, and upload function all require an
 authenticated user whose ID has been explicitly added to `gallery_admins`.
-Choose a trip, then drag a frame or trinket on the canvas or enter exact
-position, size, scale, rotation, and frame-style values in the inspector.
-Items can be hidden and restored from the item picker. **Save changes** stores
-the layout in the shared EverAfter database; **Reset** restores the original
-layout for the selected trip. Each device keeps the last successful layout as
-an offline fallback. Existing browser-only layouts migrate automatically the
-first time that browser opens this database-backed build.
+
+![EverAfter gallery admin with trip, canvas, item, and inspector controls](docs/images/gallery-admin-public-demo.png)
+
+The screenshot is rendered from the repository's public demo data and does not
+contain a real account, backend address, travel dates, or personal media.
+
+### Curate a gallery
+
+1. Choose a destination from the **Trip** menu. Use **Fit gallery** or the zoom
+   controls to frame the full wall or inspect a section closely.
+2. Select a frame, trinket, Instagram placeholder, title, or food menu directly
+   on the canvas or from the item selector in the right-hand panel.
+3. Drag the selected item to move it. Drag its highlighted corner to resize it,
+   or enter exact position, size, scale, and rotation values in the inspector.
+4. For frames, choose a frame style, update its public label, and use the photo
+   editor to arrange only media that is safe for the intended audience. Items
+   can also be hidden and restored from the item selector.
+5. Use **Add** to create a frame or trinket. Uploaded trinket artwork is public,
+   so never upload personal photographs or files containing private metadata.
+6. Select **Save changes** to publish the arrangement to gallery displays.
+   **Reset** restores the original layout for the selected trip.
+
+Each device keeps the last successful layout as an offline fallback. Existing
+browser-only layouts migrate automatically the first time that browser opens
+this database-backed build.
 Running gallery displays refresh the shared layout every five seconds, while an
 admin with unsaved edits is left untouched until those changes are saved.
 
