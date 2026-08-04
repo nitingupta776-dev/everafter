@@ -1,0 +1,116 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# The .vscode folder contains launch configuration and tasks you configure in
+# VS Code which you may wish to be included in version control, so this line
+# is commented out by default.
+#.vscode/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+/coverage/
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# InsForge & AI agent skills
+.insforge
+.agent
+.agents
+.augment
+.claude
+.cline
+.github/copilot*
+.kilocode
+.qoder
+.qwen
+.roo
+.trae
+.windsurf
+
+# Credentials and local backend state
+.env
+.env.*
+!.env.example
+.insforge/
+
+# Private travel media and derived captures. These remain available locally,
+# but must never be included in the public repository.
+/assets/memories/
+/assets/images/japan/
+/assets/images/trips/
+/assets/images/taste/*.jpg
+/models/fridge_magnet/reference_images/
+/artifacts/
+/tmp/
+/design-qa.md
+
+# Restricted/non-redistributable media. The two synthesized sound effects and
+# the public-domain cursive font are allow-listed below.
+/assets/audio/*
+!/assets/audio/globe-entrance-swell.wav
+!/assets/audio/trip-card-zoom.wav
+/assets/fonts/golifez_bright_demo.otf
+/assets/licenses/epidemic_sound_fire_effect.txt
+/assets/licenses/golifez_bright_demo_eula.txt
+
+# Local private-media import helpers and generated reports.
+/tool/download_*_highlight.sh
+/tool/import_*_highlight.sh
+/tool/import_*_highlights.sh
+/tool/import_japan_*.sh
+/tool/organize_china_by_location.sh
+/tool/generate_*_video_posters.swift
+
+# Hardware CAD includes multi-gigabyte generated exports and third-party mesh
+# inputs. It stays in the local product workspace, outside the public app repo.
+/hardware/
+
+# Generated CAD/mesh packages elsewhere are reproducible and too large for
+# ordinary GitHub source control.
+*.3mf
+*.fbx
+*.gcode
+*.glb
+*.step
+*.stl
+*.stp
+*.zip
+**/previews/
+**/snapshots/
+**/*_review.json
+!models/fridge_magnet/fridge_magnet.glb
+
+# Local agent/project instructions contain deployment-specific endpoints.
+/AGENTS.md
