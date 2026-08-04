@@ -15,16 +15,73 @@ This public repository contains anonymous demo records and redistributable place
 - Public-safe gallery placeholders derived from NASA Blue Marble imagery and a generated abstract demo video.
 - Widget tests for the idle museum and demo NFC-to-exhibit flow.
 
-## Run
+## Run the public demo
+
+### Requirements
+
+- [Flutter](https://docs.flutter.dev/get-started/install) with Dart 3.12.1 or
+  later;
+- Chrome for the quickest web preview, or a Flutter-supported desktop/mobile
+  target configured on your machine.
+
+Confirm the toolchain before starting:
 
 ```sh
+flutter doctor
+flutter devices
+```
+
+### Quick start
+
+```sh
+git clone https://github.com/thecodedose/everafter.git
+cd everafter
 flutter pub get
 flutter run -d chrome
 ```
 
-The demo works without a backend. To connect your own InsForge project, copy
-`.env.example` to `.env.local`, fill in your own public project URL and anon
-key, and run with `--dart-define-from-file=.env.local`. Never commit that file.
+The first launch plays the museum introduction and then opens the trip gallery.
+Click any trip card to explore it. The public demo uses bundled placeholder
+media and works without an account, NFC reader, or backend connection.
+
+To use another configured device, copy its ID from `flutter devices`:
+
+```sh
+flutter run -d <device-id>
+```
+
+For example, `flutter run -d macos` starts the macOS desktop build and
+`flutter run -d linux` starts the Linux desktop build when those targets are
+available.
+
+### Optional backend connection
+
+The backend is only needed for shared gallery layouts and the protected gallery
+admin. Create a local configuration file from the blank template:
+
+```sh
+cp .env.example .env.local
+```
+
+Add your own InsForge project URL and anonymous key to `.env.local`, then run:
+
+```sh
+flutter run -d chrome --dart-define-from-file=.env.local
+```
+
+`.env.local` is ignored by Git. Never commit credentials or reuse the private
+EverAfter project configuration in a public fork. Without backend values, the
+app stays in its privacy-safe offline demo mode and `/admin/gallery` cannot be
+used.
+
+### Production web build
+
+```sh
+flutter build web --release
+```
+
+The static site is written to `build/web/`. Follow Flutter's
+[web deployment guide](https://docs.flutter.dev/deployment/web) to serve it.
 
 ## Verify
 
@@ -112,9 +169,14 @@ nfc-poll
 Then build and start the native fullscreen application:
 
 ```sh
+cp .env.example .env.local  # keep blank for the offline public demo
 ./tool/build_pi.sh
 ./tool/run_pi.sh
 ```
+
+`tool/build_pi.sh` requires `.env.local` to exist. Leave its values blank for
+the offline public demo, or fill in your own InsForge project values before
+building.
 
 The launcher defaults to `EVERAFTER_FULLSCREEN=1` and
 `EVERAFTER_NFC_MODE=pn532`. For UI-only testing, run:
