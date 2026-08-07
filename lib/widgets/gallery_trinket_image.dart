@@ -31,23 +31,16 @@ class GalleryTrinketImage extends StatelessWidget {
         gaplessPlayback: true,
       );
     }
-    if (source.startsWith('http://') || source.startsWith('https://')) {
-      return Image.network(
+    if (source.startsWith('assets/')) {
+      return Image.asset(
         source,
         fit: fit,
         filterQuality: filterQuality,
         isAntiAlias: isAntiAlias,
         excludeFromSemantics: excludeFromSemantics,
-        gaplessPlayback: true,
       );
     }
-    return Image.asset(
-      source,
-      fit: fit,
-      filterQuality: filterQuality,
-      isAntiAlias: isAntiAlias,
-      excludeFromSemantics: excludeFromSemantics,
-    );
+    return const SizedBox.shrink();
   }
 }
 

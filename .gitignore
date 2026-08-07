@@ -44,8 +44,7 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-# InsForge & AI agent skills
-.insforge
+# AI agent skills
 .agent
 .agents
 .augment
@@ -59,11 +58,9 @@ app.*.map.json
 .trae
 .windsurf
 
-# Credentials and local backend state
+# Local environment files
 .env
 .env.*
-!.env.example
-.insforge/
 
 # Private travel media and derived captures. These remain available locally,
 # but must never be included in the public repository.

@@ -9,7 +9,6 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   MediaKit.ensureInitialized();
   await GalleryLayoutStore.instance.load();
-  GalleryLayoutStore.instance.startAutoRefresh();
   debugPaintBaselinesEnabled = false;
   runApp(const ProviderScope(child: EverAfterApp()));
 }

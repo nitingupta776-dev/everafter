@@ -2,14 +2,12 @@ import 'package:everafter/data/trip_repository.dart';
 import 'package:everafter/screens/collection_screen.dart';
 import 'package:everafter/screens/exhibit_screen.dart';
 import 'package:everafter/screens/gallery_admin_screen.dart';
-import 'package:everafter/screens/gallery_admin_sign_in_screen.dart';
 import 'package:everafter/screens/idle_screen.dart';
 import 'package:everafter/screens/intro_screen.dart';
 import 'package:everafter/screens/nfc_trip_experience_screen.dart';
 import 'package:everafter/screens/trip_experience_screen.dart';
 import 'package:everafter/screens/taste_of_japan_screen.dart';
 import 'package:everafter/state/museum_controller.dart';
-import 'package:everafter/services/gallery_admin_auth.dart';
 import 'package:everafter/widgets/trip_gallery.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +16,6 @@ import 'package:go_router/go_router.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   final refresh = _RouterRefresh();
-  final adminAuth = GalleryAdminAuth.instance;
   var handledNfcDetectionRevision = 0;
   ref.listen<MuseumState>(museumControllerProvider, (previous, next) {
     refresh.refresh();
@@ -31,13 +28,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/',
         pageBuilder: (context, state) => _fadePage(state, const IdleScreen()),
-      ),
-      GoRoute(
-        path: '/admin/sign-in',
-        pageBuilder: (context, state) => NoTransitionPage<void>(
-          key: state.pageKey,
-          child: const GalleryAdminSignInScreen(),
-        ),
       ),
       GoRoute(
         path: '/admin/gallery',
@@ -112,17 +102,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
     ],
     redirect: (context, routerState) {
-      final location = routerState.matchedLocation;
-      final isAdminSignIn = location == '/admin/sign-in';
-      final isProtectedAdminRoute =
-          location.startsWith('/admin/') && !isAdminSignIn;
-      if (isProtectedAdminRoute && !adminAuth.isAuthenticated) {
-        return '/admin/sign-in';
-      }
-      if (isAdminSignIn && adminAuth.isAuthenticated) {
-        return '/admin/gallery';
-      }
-
       final museumState = ref.read(museumControllerProvider);
       if (museumState.nfcDetectionRevision <= handledNfcDetectionRevision) {
         return null;
@@ -138,7 +117,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           : '/nfc/${trip.slug}';
       return routerState.matchedLocation == target ? null : target;
     },
-    refreshListenable: Listenable.merge(<Listenable>[refresh, adminAuth]),
+    refreshListenable: refresh,
   );
   ref.onDispose(router.dispose);
   return router;

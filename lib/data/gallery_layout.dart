@@ -1,9 +1,9 @@
-import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
 
-import 'package:everafter/data/gallery_layout_backend.dart';
+import 'package:everafter/services/global_gallery_layout_file.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 enum GalleryFrameStyle { oval, circular, portrait, landscape, horizontalOval }
@@ -269,7 +269,6 @@ class GalleryTrinketPlacement {
     this.angle = 0,
     this.visible = true,
     this.isCustom = false,
-    this.storageKey,
   });
 
   final String id;
@@ -282,7 +281,6 @@ class GalleryTrinketPlacement {
   final double angle;
   final bool visible;
   final bool isCustom;
-  final String? storageKey;
 
   GalleryTrinketPlacement copyWith({
     String? assetName,
@@ -293,7 +291,6 @@ class GalleryTrinketPlacement {
     double? angle,
     bool? visible,
     bool? isCustom,
-    String? storageKey,
   }) {
     return GalleryTrinketPlacement(
       id: id,
@@ -306,7 +303,6 @@ class GalleryTrinketPlacement {
       angle: angle ?? this.angle,
       visible: visible ?? this.visible,
       isCustom: isCustom ?? this.isCustom,
-      storageKey: storageKey ?? this.storageKey,
     );
   }
 
@@ -321,7 +317,6 @@ class GalleryTrinketPlacement {
     'angle': angle,
     'visible': visible,
     'isCustom': isCustom,
-    'storageKey': storageKey,
   };
 
   factory GalleryTrinketPlacement.fromJson(Map<String, dynamic> json) {
@@ -336,7 +331,6 @@ class GalleryTrinketPlacement {
       angle: (json['angle'] as num?)?.toDouble() ?? 0,
       visible: json['visible'] as bool? ?? true,
       isCustom: json['isCustom'] as bool? ?? false,
-      storageKey: json['storageKey'] as String?,
     );
   }
 }
@@ -591,6 +585,7 @@ class GalleryTripLayout {
             (item) =>
                 GalleryTrinketPlacement.fromJson(item as Map<String, dynamic>),
           )
+          .where((item) => _isLocalTrinketSource(item.assetName))
           .toList(),
       instagramPosts:
           (json['instagramPosts'] as List<dynamic>?)
@@ -776,86 +771,67 @@ GalleryTripLayout _upgradeFeaturedCircularFrameSize(GalleryTripLayout layout) {
 }
 
 class GalleryLayoutStore extends ChangeNotifier {
-  GalleryLayoutStore._();
+  GalleryLayoutStore._() : _globalFile = createGlobalGalleryLayoutFile();
 
   static final GalleryLayoutStore instance = GalleryLayoutStore._();
-  static const String _storageKey = 'everafter.gallery-layout.v1';
-  final GalleryLayoutBackend _backend = GalleryLayoutBackend();
-  Timer? _refreshTimer;
-  bool _refreshInFlight = false;
+  static const String bundledGlobalLayoutPath =
+      'assets/data/gallery_layouts.json';
+  static const String _legacyStorageKey = 'everafter.gallery-layout.v1';
+  static const String _deviceOverridesKey =
+      'everafter.gallery-layout.device-overrides.v1';
 
+  final GlobalGalleryLayoutFile _globalFile;
+  Map<String, GalleryTripLayout> _bundledLayouts =
+      <String, GalleryTripLayout>{};
+  Map<String, GalleryTripLayout> _globalLayouts = <String, GalleryTripLayout>{};
+  Map<String, Map<String, dynamic>> _deviceOverrides =
+      <String, Map<String, dynamic>>{};
   Map<String, GalleryTripLayout> _layouts = <String, GalleryTripLayout>{};
   bool _hasUnsavedChanges = false;
 
   bool get hasUnsavedChanges => _hasUnsavedChanges;
+  bool get editsGlobalLayout => kIsWeb;
+  String? get globalSourceFileName => _globalFile.fileName;
 
   GalleryTripLayout layoutFor(String tripSlug) =>
       _layouts[tripSlug] ?? defaultGalleryLayoutFor(tripSlug);
 
   Future<void> load() async {
+    await _loadBundledGlobalLayouts();
     final preferences = await SharedPreferences.getInstance();
-    final encoded = preferences.getString(_storageKey);
-    var loadedCachedLayouts = false;
-    if (encoded != null) {
+    _deviceOverrides = <String, Map<String, dynamic>>{};
+
+    final encodedOverrides = preferences.getString(_deviceOverridesKey);
+    if (!kIsWeb && encodedOverrides != null) {
       try {
-        _layouts = _decodeLayouts(jsonDecode(encoded) as Map<String, dynamic>);
-        loadedCachedLayouts = _layouts.isNotEmpty;
-      } on FormatException {
-        // Keep the known-good defaults when cached editor data is malformed.
+        final document = jsonDecode(encodedOverrides) as Map<String, dynamic>;
+        final overrides = document['overrides'] as Map? ?? document;
+        _deviceOverrides = <String, Map<String, dynamic>>{
+          for (final entry in overrides.entries)
+            entry.key as String: Map<String, dynamic>.from(entry.value as Map),
+        };
+      } on Object {
+        _deviceOverrides = <String, Map<String, dynamic>>{};
+      }
+    } else if (!kIsWeb) {
+      final legacy = preferences.getString(_legacyStorageKey);
+      if (legacy != null) {
+        try {
+          final legacyLayouts = _decodeLayouts(
+            jsonDecode(legacy) as Map<String, dynamic>,
+          );
+          _deviceOverrides = _createOverrides(legacyLayouts);
+          await _cacheDeviceOverrides(preferences);
+          await preferences.remove(_legacyStorageKey);
+        } on Object {
+          // A malformed legacy snapshot must not hide the bundled global file.
+        }
       }
     }
-    try {
-      final remote = await _backend.loadLayouts().timeout(
-        const Duration(seconds: 5),
-      );
-      if (remote.isNotEmpty) {
-        _layouts = _decodeLayouts(remote);
-        await _cacheLayouts(preferences);
-      } else if (loadedCachedLayouts) {
-        final migrated = await _backend.saveLayouts(_encodedLayouts());
-        _layouts = _decodeLayouts(migrated);
-        await _cacheLayouts(preferences);
-      }
-    } on Exception {
-      // The device remains usable offline with its last successful DB snapshot.
-      _hasUnsavedChanges = loadedCachedLayouts;
-    }
+
+    _layouts = kIsWeb ? Map.of(_globalLayouts) : _effectiveDeviceLayouts();
+    _hasUnsavedChanges = false;
     notifyListeners();
-  }
-
-  void startAutoRefresh({Duration interval = const Duration(seconds: 5)}) {
-    _refreshTimer?.cancel();
-    _refreshTimer = Timer.periodic(
-      interval,
-      (_) => unawaited(refreshFromDatabase()),
-    );
-  }
-
-  Future<void> refreshFromDatabase() async {
-    if (_hasUnsavedChanges || _refreshInFlight) return;
-    _refreshInFlight = true;
-    try {
-      final remote = await _backend.loadLayouts().timeout(
-        const Duration(seconds: 5),
-      );
-      if (remote.isEmpty) return;
-      final refreshedLayouts = _decodeLayouts(remote);
-      final currentJson = jsonEncode(_encodedLayouts());
-      final refreshedJson = jsonEncode(
-        refreshedLayouts.map(
-          (slug, layout) =>
-              MapEntry(slug, Map<String, dynamic>.from(layout.toJson())),
-        ),
-      );
-      if (currentJson == refreshedJson) return;
-      _layouts = refreshedLayouts;
-      await _cacheLayouts(await SharedPreferences.getInstance());
-      notifyListeners();
-    } on Exception {
-      // Keep showing the last successful snapshot while the Pi is offline.
-    } finally {
-      _refreshInFlight = false;
-    }
   }
 
   void updateFrame(String tripSlug, GalleryFramePlacement frame) {
@@ -1061,10 +1037,17 @@ class GalleryLayoutStore extends ChangeNotifier {
   }
 
   Future<void> save() async {
+    if (kIsWeb) {
+      _globalLayouts = Map<String, GalleryTripLayout>.of(_layouts);
+      await _globalFile.save(encodeGlobalGalleryLayoutDocument(_globalLayouts));
+      _hasUnsavedChanges = false;
+      notifyListeners();
+      return;
+    }
+
     final preferences = await SharedPreferences.getInstance();
-    final saved = await _backend.saveLayouts(_encodedLayouts());
-    _layouts = _decodeLayouts(saved);
-    await _cacheLayouts(preferences);
+    _deviceOverrides = _createOverrides(_layouts);
+    await _cacheDeviceOverrides(preferences);
     _hasUnsavedChanges = false;
     notifyListeners();
   }
@@ -1082,29 +1065,78 @@ class GalleryLayoutStore extends ChangeNotifier {
     );
   }
 
-  Future<void> _cacheLayouts(SharedPreferences preferences) {
+  Future<void> _cacheDeviceOverrides(SharedPreferences preferences) {
     return preferences.setString(
-      _storageKey,
-      jsonEncode(
-        _layouts.map((slug, layout) => MapEntry(slug, layout.toJson())),
-      ),
-    );
-  }
-
-  Map<String, Map<String, dynamic>> _encodedLayouts() {
-    return _layouts.map(
-      (slug, layout) =>
-          MapEntry(slug, Map<String, dynamic>.from(layout.toJson())),
+      _deviceOverridesKey,
+      jsonEncode(<String, Object?>{
+        'schemaVersion': 1,
+        'overrides': _deviceOverrides,
+      }),
     );
   }
 
   Future<void> resetTrip(String tripSlug) async {
     _layouts = <String, GalleryTripLayout>{
       ..._layouts,
-      tripSlug: defaultGalleryLayoutFor(tripSlug),
+      tripSlug: kIsWeb
+          ? (_bundledLayouts[tripSlug] ?? defaultGalleryLayoutFor(tripSlug))
+          : _globalLayoutFor(tripSlug),
     };
     _hasUnsavedChanges = true;
     notifyListeners();
+  }
+
+  Future<void> _loadBundledGlobalLayouts() async {
+    try {
+      final contents = await rootBundle.loadString(bundledGlobalLayoutPath);
+      _bundledLayouts = decodeGlobalGalleryLayoutDocument(contents);
+    } on Object {
+      _bundledLayouts = <String, GalleryTripLayout>{};
+    }
+    _globalLayouts = Map<String, GalleryTripLayout>.of(_bundledLayouts);
+  }
+
+  GalleryTripLayout _globalLayoutFor(String tripSlug) =>
+      _globalLayouts[tripSlug] ?? defaultGalleryLayoutFor(tripSlug);
+
+  Map<String, GalleryTripLayout> _effectiveDeviceLayouts() {
+    final slugs = <String>{..._globalLayouts.keys, ..._deviceOverrides.keys};
+    return <String, GalleryTripLayout>{
+      for (final slug in slugs)
+        slug: _layoutWithPatch(
+          slug,
+          _globalLayoutFor(slug),
+          _deviceOverrides[slug],
+        ),
+    };
+  }
+
+  Map<String, Map<String, dynamic>> _createOverrides(
+    Map<String, GalleryTripLayout> layouts,
+  ) {
+    final overrides = <String, Map<String, dynamic>>{};
+    for (final entry in layouts.entries) {
+      final patch = _jsonMapDifference(
+        _globalLayoutFor(entry.key).toJson(),
+        entry.value.toJson(),
+      );
+      if (patch.isNotEmpty) overrides[entry.key] = patch;
+    }
+    return overrides;
+  }
+
+  GalleryTripLayout _layoutWithPatch(
+    String tripSlug,
+    GalleryTripLayout global,
+    Map<String, dynamic>? patch,
+  ) {
+    if (patch == null || patch.isEmpty) return global;
+    final merged = _mergeJsonMaps(global.toJson(), patch);
+    return GalleryTripLayout.fromJson(
+      merged,
+      tripSlug: tripSlug,
+      fallbackStripWidth: global.stripWidth,
+    );
   }
 
   void _markChanged() {
@@ -1121,6 +1153,89 @@ class GalleryLayoutStore extends ChangeNotifier {
     return '$prefix-$index';
   }
 }
+
+Map<String, GalleryTripLayout> decodeGlobalGalleryLayoutDocument(
+  String contents,
+) {
+  final document = jsonDecode(contents);
+  if (document is! Map<String, dynamic>) {
+    throw const FormatException('Global gallery layout must be a JSON object.');
+  }
+  if (document['schemaVersion'] != 1) {
+    throw const FormatException('Unsupported global gallery layout schema.');
+  }
+  final encodedLayouts = document['layouts'];
+  if (encodedLayouts is! Map) {
+    throw const FormatException('Global gallery layout is missing layouts.');
+  }
+  return <String, GalleryTripLayout>{
+    for (final entry in encodedLayouts.entries)
+      entry.key as String: GalleryTripLayout.fromJson(
+        Map<String, dynamic>.from(entry.value as Map),
+        tripSlug: entry.key as String,
+        fallbackStripWidth: defaultGalleryStripWidthFor(entry.key as String),
+      ),
+  };
+}
+
+String encodeGlobalGalleryLayoutDocument(
+  Map<String, GalleryTripLayout> layouts,
+) {
+  return '${const JsonEncoder.withIndent('  ').convert(<String, Object?>{
+    'schemaVersion': 1,
+    'layouts': <String, Object?>{for (final entry in layouts.entries) entry.key: entry.value.toJson()},
+  })}\n';
+}
+
+Map<String, dynamic> _jsonMapDifference(
+  Map<String, dynamic> global,
+  Map<String, dynamic> device,
+) {
+  final difference = <String, dynamic>{};
+  for (final entry in device.entries) {
+    final globalValue = global[entry.key];
+    final deviceValue = entry.value;
+    if (globalValue is Map && deviceValue is Map) {
+      final nested = _jsonMapDifference(
+        Map<String, dynamic>.from(globalValue),
+        Map<String, dynamic>.from(deviceValue),
+      );
+      if (nested.isNotEmpty) difference[entry.key] = nested;
+    } else if (!_jsonValuesEqual(globalValue, deviceValue)) {
+      difference[entry.key] = deviceValue;
+    }
+  }
+  return difference;
+}
+
+Map<String, dynamic> _mergeJsonMaps(
+  Map<String, dynamic> global,
+  Map<String, dynamic> patch,
+) {
+  final merged = Map<String, dynamic>.from(global);
+  for (final entry in patch.entries) {
+    final globalValue = merged[entry.key];
+    final patchValue = entry.value;
+    if (globalValue is Map && patchValue is Map) {
+      merged[entry.key] = _mergeJsonMaps(
+        Map<String, dynamic>.from(globalValue),
+        Map<String, dynamic>.from(patchValue),
+      );
+    } else {
+      merged[entry.key] = patchValue;
+    }
+  }
+  return merged;
+}
+
+bool _jsonValuesEqual(Object? first, Object? second) =>
+    jsonEncode(first) == jsonEncode(second);
+
+bool _isLocalTrinketSource(String source) =>
+    source.startsWith('assets/') ||
+    source.startsWith('data:image/png;base64,') ||
+    source.startsWith('data:image/jpeg;base64,') ||
+    source.startsWith('data:image/webp;base64,');
 
 GalleryTripLayout defaultGalleryLayoutFor(String tripSlug) {
   const rowCenterY = 405.0;

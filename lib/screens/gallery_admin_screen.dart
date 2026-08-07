@@ -1,14 +1,11 @@
-import 'dart:convert';
 import 'dart:math' as math;
 
 import 'package:everafter/data/gallery_layout.dart';
 import 'package:everafter/data/gallery_memory_content.dart';
 import 'package:everafter/data/japan_instagram_posts.dart';
-import 'package:everafter/services/gallery_admin_auth.dart';
 import 'package:everafter/theme/everafter_theme.dart';
 import 'package:everafter/widgets/gallery_trinket_image.dart';
 import 'package:everafter/widgets/trip_gallery.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -72,94 +69,136 @@ class _GalleryAdminScreenState extends State<GalleryAdminScreen> {
 
   Widget _buildHeader() {
     return Container(
-      height: 76,
-      padding: const EdgeInsets.symmetric(horizontal: 22),
+      height: 122,
+      padding: const EdgeInsets.fromLTRB(22, 6, 22, 8),
       decoration: const BoxDecoration(
         color: Color(0xFF231815),
         border: Border(bottom: BorderSide(color: Color(0xFF513B33))),
       ),
-      child: Row(
+      child: Column(
         children: <Widget>[
-          IconButton(
-            tooltip: 'Back to EverAfter',
-            onPressed: () => context.go('/'),
-            color: EverAfterColors.agedPaper,
-            icon: const Icon(Icons.arrow_back),
-          ),
-          const SizedBox(width: 8),
-          const Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(
-                'GALLERY ADMIN',
-                style: TextStyle(
+          Expanded(
+            child: Row(
+              children: <Widget>[
+                IconButton(
+                  tooltip: 'Back to EverAfter',
+                  onPressed: () => context.go('/'),
                   color: EverAfterColors.agedPaper,
-                  fontFamily: 'Georgia',
-                  fontSize: 19,
-                  letterSpacing: 2.2,
-                  fontWeight: FontWeight.w600,
+                  icon: const Icon(Icons.arrow_back),
+                ),
+                const SizedBox(width: 8),
+                const Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      'GALLERY ADMIN',
+                      style: TextStyle(
+                        color: EverAfterColors.agedPaper,
+                        fontFamily: 'Georgia',
+                        fontSize: 19,
+                        letterSpacing: 2.2,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    SizedBox(height: 3),
+                    Text(
+                      'Arrange frames and trinkets',
+                      style: TextStyle(color: Color(0xFFBCA99C), fontSize: 12),
+                    ),
+                  ],
+                ),
+                const Spacer(),
+                OutlinedButton.icon(
+                  key: const ValueKey('admin-reset-layout'),
+                  onPressed: _confirmReset,
+                  icon: const Icon(Icons.restart_alt),
+                  label: const Text('Reset'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFFE7C7B3),
+                    side: const BorderSide(color: Color(0xFF785C50)),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                FilledButton.icon(
+                  key: const ValueKey('admin-save-layout'),
+                  onPressed: _store.hasUnsavedChanges ? _save : null,
+                  icon: const Icon(Icons.save_outlined),
+                  label: Text(
+                    _store.hasUnsavedChanges
+                        ? (_store.editsGlobalLayout
+                              ? 'Save global'
+                              : 'Save this device')
+                        : 'Saved',
+                  ),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: const Color(0xFFB58A54),
+                    foregroundColor: const Color(0xFF24160E),
+                    disabledBackgroundColor: const Color(0xFF4A403A),
+                    disabledForegroundColor: const Color(0xFFA99D95),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Row(
+            children: <Widget>[
+              Container(
+                key: const ValueKey('admin-layout-scope'),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF352520),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: const Color(0xFF654A40)),
+                ),
+                child: Text(
+                  _store.editsGlobalLayout
+                      ? 'GLOBAL LAYOUT'
+                      : 'THIS DEVICE ONLY',
+                  style: const TextStyle(
+                    color: Color(0xFFD7B27C),
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1.2,
+                  ),
                 ),
               ),
-              SizedBox(height: 3),
-              Text(
-                'Arrange frames and trinkets',
-                style: TextStyle(color: Color(0xFFBCA99C), fontSize: 12),
+              const Spacer(),
+              SizedBox(
+                width: 210,
+                child: DropdownButtonFormField<String>(
+                  key: const ValueKey('admin-trip-selector'),
+                  initialValue: _tripSlug,
+                  dropdownColor: const Color(0xFF352520),
+                  style: const TextStyle(color: EverAfterColors.paper),
+                  decoration: _fieldDecoration('Trip'),
+                  items: <DropdownMenuItem<String>>[
+                    for (final trip in tripGalleryItems)
+                      DropdownMenuItem(
+                        value: trip.slug,
+                        child: Text(trip.name),
+                      ),
+                  ],
+                  onChanged: (slug) {
+                    if (slug == null) return;
+                    setState(() {
+                      _tripSlug = slug;
+                      _selection = null;
+                    });
+                  },
+                ),
+              ),
+              const SizedBox(width: 12),
+              TextButton.icon(
+                key: const ValueKey('admin-travel-dates'),
+                onPressed: _editTravelDates,
+                icon: const Icon(Icons.date_range_outlined, size: 18),
+                label: const Text('Travel dates'),
               ),
             ],
-          ),
-          const Spacer(),
-          SizedBox(
-            width: 210,
-            child: DropdownButtonFormField<String>(
-              key: const ValueKey('admin-trip-selector'),
-              initialValue: _tripSlug,
-              dropdownColor: const Color(0xFF352520),
-              style: const TextStyle(color: EverAfterColors.paper),
-              decoration: _fieldDecoration('Trip'),
-              items: <DropdownMenuItem<String>>[
-                for (final trip in tripGalleryItems)
-                  DropdownMenuItem(value: trip.slug, child: Text(trip.name)),
-              ],
-              onChanged: (slug) {
-                if (slug == null) return;
-                setState(() {
-                  _tripSlug = slug;
-                  _selection = null;
-                });
-              },
-            ),
-          ),
-          const SizedBox(width: 12),
-          TextButton.icon(
-            key: const ValueKey('admin-travel-dates'),
-            onPressed: _editTravelDates,
-            icon: const Icon(Icons.date_range_outlined, size: 18),
-            label: const Text('Travel dates'),
-          ),
-          const SizedBox(width: 8),
-          OutlinedButton.icon(
-            key: const ValueKey('admin-reset-layout'),
-            onPressed: _confirmReset,
-            icon: const Icon(Icons.restart_alt),
-            label: const Text('Reset'),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: const Color(0xFFE7C7B3),
-              side: const BorderSide(color: Color(0xFF785C50)),
-            ),
-          ),
-          const SizedBox(width: 10),
-          FilledButton.icon(
-            key: const ValueKey('admin-save-layout'),
-            onPressed: _store.hasUnsavedChanges ? _save : null,
-            icon: const Icon(Icons.save_outlined),
-            label: Text(_store.hasUnsavedChanges ? 'Save changes' : 'Saved'),
-            style: FilledButton.styleFrom(
-              backgroundColor: const Color(0xFFB58A54),
-              foregroundColor: const Color(0xFF24160E),
-              disabledBackgroundColor: const Color(0xFF4A403A),
-              disabledForegroundColor: const Color(0xFFA99D95),
-            ),
           ),
         ],
       ),
@@ -576,50 +615,66 @@ class _GalleryAdminScreenState extends State<GalleryAdminScreen> {
         title: const Text('Add a trinket'),
         content: SizedBox(
           width: 680,
-          height: 360,
-          child: GridView.builder(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              mainAxisSpacing: 10,
-              crossAxisSpacing: 10,
-              childAspectRatio: 1.15,
-            ),
-            itemCount: galleryTrinketAssetChoices.length,
-            itemBuilder: (context, index) {
-              final asset = galleryTrinketAssetChoices[index];
-              return InkWell(
-                key: ValueKey('admin-trinket-choice-$index'),
-                onTap: () => Navigator.pop(
-                  context,
-                  _TrinketSelection(source: asset, label: _trinketLabel(asset)),
-                ),
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF130D0B),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: const Color(0xFF5B443A)),
+          height: 430,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Expanded(
+                child: GridView.builder(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    mainAxisSpacing: 10,
+                    crossAxisSpacing: 10,
+                    childAspectRatio: 1.15,
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(10),
-                    child: Image.asset(asset, fit: BoxFit.contain),
-                  ),
+                  itemCount: galleryTrinketAssetChoices.length,
+                  itemBuilder: (context, index) {
+                    final asset = galleryTrinketAssetChoices[index];
+                    return InkWell(
+                      key: ValueKey('admin-trinket-choice-$index'),
+                      onTap: () => Navigator.pop(
+                        context,
+                        _TrinketSelection(
+                          source: asset,
+                          label: _trinketLabel(asset),
+                        ),
+                      ),
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF130D0B),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: const Color(0xFF5B443A)),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(10),
+                          child: Image.asset(asset, fit: BoxFit.contain),
+                        ),
+                      ),
+                    );
+                  },
                 ),
-              );
-            },
+              ),
+              const SizedBox(height: 14),
+              Container(
+                key: const ValueKey('admin-trinket-source-guidance'),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1A1210),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: const Color(0xFF5B443A)),
+                ),
+                child: const Text(
+                  'To add more trinkets, place PNG, JPEG, or WebP files in '
+                  'assets/images/experience/, add their asset paths to '
+                  'galleryTrinketAssetChoices in '
+                  'lib/data/gallery_memory_content.dart, then rebuild EverAfter.',
+                  style: TextStyle(color: Color(0xFFD4BFAF), height: 1.35),
+                ),
+              ),
+            ],
           ),
         ),
         actions: <Widget>[
-          OutlinedButton.icon(
-            key: const ValueKey('admin-upload-trinket'),
-            onPressed: () async {
-              final uploaded = await _pickCustomTrinketImage();
-              if (uploaded != null && context.mounted) {
-                Navigator.pop(context, uploaded);
-              }
-            },
-            icon: const Icon(Icons.upload_file_outlined),
-            label: const Text('Upload image'),
-          ),
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Cancel'),
@@ -636,34 +691,6 @@ class _GalleryAdminScreenState extends State<GalleryAdminScreen> {
     setState(() {
       _selection = _SelectedGalleryItem(_GalleryItemType.trinket, trinket.id);
     });
-  }
-
-  Future<_TrinketSelection?> _pickCustomTrinketImage() async {
-    final result = await FilePicker.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: const <String>['png', 'jpg', 'jpeg', 'webp'],
-      withData: true,
-    );
-    final file = result?.files.single;
-    final bytes = file?.bytes;
-    if (file == null || bytes == null) {
-      return null;
-    }
-    const maximumBytes = 2 * 1024 * 1024;
-    if (bytes.length > maximumBytes) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Choose an image smaller than 2 MB.')),
-        );
-      }
-      return null;
-    }
-    final extension = (file.extension ?? 'png').toLowerCase();
-    final mimeSubtype = extension == 'jpg' ? 'jpeg' : extension;
-    final source = 'data:image/$mimeSubtype;base64,${base64Encode(bytes)}';
-    final dot = file.name.lastIndexOf('.');
-    final label = dot > 0 ? file.name.substring(0, dot) : file.name;
-    return _TrinketSelection(source: source, label: label);
   }
 
   Widget _buildFoodMenu() {
@@ -1257,18 +1284,6 @@ class _GalleryAdminScreenState extends State<GalleryAdminScreen> {
                   });
                 },
               ),
-            ),
-            const SizedBox(width: 4),
-            IconButton(
-              key: const ValueKey('admin-sign-out'),
-              tooltip: 'Sign out',
-              onPressed: () {
-                GalleryAdminAuth.instance.signOut();
-                context.go('/');
-              },
-              visualDensity: VisualDensity.compact,
-              icon: const Icon(Icons.logout, size: 19),
-              color: const Color(0xFFD4BFAF),
             ),
           ],
         ),
@@ -2159,7 +2174,11 @@ class _GalleryAdminScreenState extends State<GalleryAdminScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Could not save to the database. $error'),
+          content: Text(
+            _store.editsGlobalLayout
+                ? 'Could not save the global layout. $error'
+                : 'Could not save on this device. $error',
+          ),
           backgroundColor: const Color(0xFF8A2F2F),
         ),
       );
@@ -2167,7 +2186,13 @@ class _GalleryAdminScreenState extends State<GalleryAdminScreen> {
     }
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Gallery layout saved to the database.')),
+      SnackBar(
+        content: Text(
+          _store.editsGlobalLayout
+              ? 'Global layout JSON saved. Rebuild devices to bundle it.'
+              : 'Device-specific gallery layout saved.',
+        ),
+      ),
     );
   }
 
@@ -2176,9 +2201,12 @@ class _GalleryAdminScreenState extends State<GalleryAdminScreen> {
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFF2B1D19),
         title: Text('Reset ${_trip.name}?'),
-        content: const Text(
-          'This restores every frame and trinket to its original placement. '
-          'Use Save changes afterward to make the reset permanent.',
+        content: Text(
+          _store.editsGlobalLayout
+              ? 'This restores this trip from the bundled global layout. '
+                    'Save global afterward to update the JSON file.'
+              : 'This removes this trip\'s device-specific changes and '
+                    'restores the global layout. Save this device afterward.',
         ),
         actions: <Widget>[
           TextButton(

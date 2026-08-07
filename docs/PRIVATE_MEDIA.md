@@ -19,13 +19,17 @@ manifest and data bindings in an ignored local overlay or a separate private
 repository. Do not replace the public demo paths with personal filenames in a
 public branch.
 
-The shared `gallery-trinkets` bucket is public-read by design. New editor
-uploads are published immediately under `published-trinkets/`. Do not upload
-private photos, scans, receipts, or other personal material through the gallery
-admin. Legacy storage-backed trinkets are omitted from the anonymous gallery
-view, as are custom frame media paths, crop metadata, titles, storage keys, and
-custom trinket labels. Keep private files in the ignored overlay described
-above.
+The gallery editor does not accept browser uploads. Add private trip media under
+`assets/memories/<trip-slug>/`, then register it in the trip's private data and
+asset manifest before rebuilding. Bundled trinket artwork lives under
+`assets/images/experience/` and is listed in `galleryTrinketAssetChoices` in
+`lib/data/gallery_memory_content.dart`. Keep private originals in the ignored
+overlay described above and never commit exported preference data.
+
+The shared layout source is `assets/data/gallery_layouts.json`. It must contain
+only public-safe asset paths and labels on a public branch. Device-specific
+layout overrides remain in platform application preferences and should not be
+copied into the repository.
 
 Before publishing a change, review the exact candidate set:
 

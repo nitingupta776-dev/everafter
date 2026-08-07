@@ -33,13 +33,9 @@ if ! command -v flutter >/dev/null 2>&1; then
 fi
 
 cd "$ROOT_DIR"
-if [[ ! -f "$ROOT_DIR/.env.local" ]]; then
-  echo "Missing .env.local with the EverAfter database connection." >&2
-  exit 1
-fi
 flutter config --enable-linux-desktop
 flutter pub get
-flutter build linux --release --dart-define-from-file="$ROOT_DIR/.env.local"
+flutter build linux --release
 
 shopt -s nullglob
 BUNDLES=("$ROOT_DIR"/build/linux/*/release/bundle)

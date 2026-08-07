@@ -417,7 +417,9 @@ void main() {
     expect(find.text('JAN 02, 2025  →  JAN 05, 2025'), findsOneWidget);
   });
 
-  testWidgets('admin adds multi-photo frames and trinkets', (tester) async {
+  testWidgets('admin adds multi-photo frames and bundled trinkets', (
+    tester,
+  ) async {
     await tester.binding.setSurfaceSize(const Size(1280, 800));
     addTearDown(() => tester.binding.setSurfaceSize(null));
     final store = GalleryLayoutStore.instance;
@@ -455,7 +457,12 @@ void main() {
     await tester.tap(find.text('Trinket'));
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('admin-trinket-picker')), findsOneWidget);
-    expect(find.byKey(const ValueKey('admin-upload-trinket')), findsOneWidget);
+    expect(find.byKey(const ValueKey('admin-upload-trinket')), findsNothing);
+    expect(
+      find.byKey(const ValueKey('admin-trinket-source-guidance')),
+      findsOneWidget,
+    );
+    expect(find.textContaining('assets/images/experience/'), findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('admin-trinket-choice-0')));
     await tester.pumpAndSettle();
 
@@ -639,7 +646,7 @@ void main() {
     expect(restored.effectiveDurationLabel(12), '4 DAYS');
   });
 
-  testWidgets('uploaded trinket data renders as an in-memory image', (
+  testWidgets('previously embedded trinket data remains readable', (
     tester,
   ) async {
     const onePixelPng =

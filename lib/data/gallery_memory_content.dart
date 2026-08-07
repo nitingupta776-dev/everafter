@@ -60,6 +60,8 @@ List<String> galleryPhotoChoicesFor(TripGalleryItem trip) {
   return choices.toList(growable: false);
 }
 
+// Add bundled trinket files under assets/images/experience/, register their
+// paths here, then rebuild EverAfter. Browser uploads are intentionally absent.
 const List<String> galleryTrinketAssetChoices = <String>[
   'assets/images/experience/china-nfc-magnet-reveal.png',
   'assets/images/experience/hong-kong-nfc-magnet-reveal.png',

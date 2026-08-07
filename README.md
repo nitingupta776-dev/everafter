@@ -2,7 +2,7 @@
 
 EverAfter is a Flutter prototype for a local-first interactive museum of travel souvenirs. An idle museum display waits for an NFC-tagged artifact, opens an artifact intro, then moves into a calm exhibit flow with archival labels, paper texture, and collection browsing.
 
-This public repository contains anonymous demo records and redistributable placeholder media only. Personal photos, videos, travel dates, NFC identifiers, backend credentials, and local design captures are intentionally excluded.
+This public repository contains anonymous demo records and redistributable placeholder media only. Personal photos, videos, travel dates, NFC identifiers, and local design captures are intentionally excluded.
 
 ## What is implemented
 
@@ -42,7 +42,7 @@ flutter run -d chrome
 
 The first launch plays the museum introduction and then opens the trip gallery.
 Click any trip card to explore it. The public demo uses bundled placeholder
-media and works without an account, NFC reader, or backend connection.
+media and works without an account, network connection, or NFC reader.
 
 To use another configured device, copy its ID from `flutter devices`:
 
@@ -54,25 +54,18 @@ For example, `flutter run -d macos` starts the macOS desktop build and
 `flutter run -d linux` starts the Linux desktop build when those targets are
 available.
 
-### Optional backend connection
+### Local gallery storage
 
-The backend is only needed for shared gallery layouts and the protected gallery
-admin. Create a local configuration file from the blank template:
+EverAfter has no backend configuration. The shared baseline for every device is
+[`assets/data/gallery_layouts.json`](assets/data/gallery_layouts.json), bundled
+into the app at build time. Native devices can create a local override in
+Flutter preferences under `everafter.gallery-layout.device-overrides.v1`.
+Overrides contain only layout sections that differ from the global baseline.
 
-```sh
-cp .env.example .env.local
-```
-
-Add your own InsForge project URL and anonymous key to `.env.local`, then run:
-
-```sh
-flutter run -d chrome --dart-define-from-file=.env.local
-```
-
-`.env.local` is ignored by Git. Never commit credentials or reuse the private
-EverAfter project configuration in a public fork. Without backend values, the
-app stays in its privacy-safe offline demo mode and `/admin/gallery` cannot be
-used.
+There is no realtime or automatic sync. To distribute a global change, save the
+JSON in browser admin, commit it if appropriate, then rebuild or redeploy each
+device. Clearing application data removes that device's override and reveals
+the bundled global layout again.
 
 ### Production web build
 
@@ -93,14 +86,18 @@ flutter test
 
 ## Gallery admin
 
-Open `/admin/gallery` in the web app to sign in and arrange the cinematic
-gallery walls. The route, database writes, and upload function all require an
-authenticated user whose ID has been explicitly added to `gallery_admins`.
+Open `/admin/gallery` in the app to arrange the cinematic gallery walls. The
+browser automatically loads the bundled `assets/data/gallery_layouts.json` as
+the editable global layout. The first **Save global** asks where to write the
+JSON; select the source file and confirm replacement. Later saves in that
+browser session reuse the same permission. In a native app, edits create only a
+local override for that device. Physical access to the device or browser
+profile is the access boundary.
 
 ![EverAfter gallery admin with trip, canvas, item, and inspector controls](docs/images/gallery-admin-public-demo.png)
 
 The screenshot is rendered from the repository's public demo data and does not
-contain a real account, backend address, travel dates, or personal media.
+contain travel dates or personal media.
 
 ### Curate a gallery
 
@@ -113,39 +110,22 @@ contain a real account, backend address, travel dates, or personal media.
 4. For frames, choose a frame style, update its public label, and use the photo
    editor to arrange only media that is safe for the intended audience. Items
    can also be hidden and restored from the item selector.
-5. Use **Add** to create a frame or trinket. Uploaded trinket artwork is public,
-   so never upload personal photographs or files containing private metadata.
-6. Select **Save changes** to publish the arrangement to gallery displays.
-   **Reset** restores the original layout for the selected trip.
+5. Use **Add** to create a frame or choose an existing bundled trinket. Browser
+   uploads are disabled. To add source artwork, place PNG, JPEG, or WebP files
+   in `assets/images/experience/`, add their paths to
+   `galleryTrinketAssetChoices` in
+   `lib/data/gallery_memory_content.dart`, and rebuild EverAfter. Add private
+   trip photos under `assets/memories/<trip-slug>/` and register them in that
+   trip's collection source and private asset manifest before rebuilding.
+6. In browser admin, select **Save global**, choose
+   `assets/data/gallery_layouts.json`, and confirm replacement on the first
+   save. On a native device, select **Save this device** to retain an override
+   only there. **Reset** restores the bundled baseline in browser admin or
+   removes the selected trip's device changes on native.
 
-Each device keeps the last successful layout as an offline fallback. Existing
-browser-only layouts migrate automatically the first time that browser opens
-this database-backed build.
-Running gallery displays refresh the shared layout every five seconds, while an
-admin with unsaved edits is left untouched until those changes are saved.
-
-No administrator is created by the public migrations. After creating and
-verifying an owner account in your own InsForge project, grant it access from
-an authenticated CLI session:
-
-```sh
-npx @insforge/cli db query \
-  "INSERT INTO public.gallery_admins (user_id) VALUES ('<auth-user-uuid>') ON CONFLICT DO NOTHING;"
-```
-
-Admin access tokens are kept in memory only; closing or restarting the app
-requires signing in again. Anonymous displays read a sanitized database view
-that omits travel dates and cannot mutate the source layouts.
-
-Custom trinket images are uploaded to the public `gallery-trinkets`
-object-storage bucket under server-generated `published-trinkets/` keys. The
-anonymous view omits legacy storage objects, custom frame media paths and
-titles, crop metadata, storage keys, and custom trinket labels. Public frames
-fall back to the bundled demo media. The database stores each new image's URL
-and storage key rather than embedding the full image in the layout row. That
-bucket is intentionally public-read so
-gallery displays can render its objects. Upload only artwork that is safe to be
-world-readable; never upload personal photographs to it.
+Existing device snapshots migrate to the override format, including previously
+embedded local trinkets. Legacy cloud-only trinket URLs are removed during
+migration because their image bytes are not available offline.
 
 ## Privacy and public sharing
 
@@ -153,7 +133,7 @@ The Git boundary deliberately excludes:
 
 - `assets/memories/`, imported trip photography, reels, manifests, and keepsake scans;
 - exact travel dates and physical NFC tag identifiers;
-- `.env*` credentials (except the blank `.env.example`) and local InsForge state;
+- local application preferences and browser storage;
 - model reference photos, design-QA captures, temporary files, logs, and generated CAD/mesh exports;
 - audio and fonts whose licenses do not permit source redistribution.
 
@@ -161,7 +141,7 @@ See [`docs/PRIVATE_MEDIA.md`](docs/PRIVATE_MEDIA.md) before adding your own
 collection. Run `git add -n .` before every public commit to confirm none of the
 ignored local archive is entering Git.
 
-The database and upload authorization model is documented in
+The local data and device-access model is documented in
 [`docs/SECURITY.md`](docs/SECURITY.md).
 
 ## NFC integration point
@@ -187,14 +167,9 @@ nfc-poll
 Then build and start the native fullscreen application:
 
 ```sh
-cp .env.example .env.local  # keep blank for the offline public demo
 ./tool/build_pi.sh
 ./tool/run_pi.sh
 ```
-
-`tool/build_pi.sh` requires `.env.local` to exist. Leave its values blank for
-the offline public demo, or fill in your own InsForge project values before
-building.
 
 The launcher defaults to `EVERAFTER_FULLSCREEN=1` and
 `EVERAFTER_NFC_MODE=pn532`. For UI-only testing, run:
