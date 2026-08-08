@@ -31,6 +31,11 @@ only public-safe asset paths and labels on a public branch. Device-specific
 layout overrides remain in platform application preferences and should not be
 copied into the repository.
 
+For a private iPhone build, follow [`IOS_SETUP.md`](IOS_SETUP.md). Its media
+section explains both required steps: declaring the ignored asset directory in
+a private `pubspec.yaml` and registering each photo, video, and poster in the
+matching trip collection.
+
 Before publishing a change, review the exact candidate set:
 
 ```sh

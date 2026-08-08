@@ -54,6 +54,16 @@ For example, `flutter run -d macos` starts the macOS desktop build and
 `flutter run -d linux` starts the Linux desktop build when those targets are
 available.
 
+### Install and curate on iPhone
+
+See [`docs/IOS_SETUP.md`](docs/IOS_SETUP.md) for the complete iOS workflow:
+
+- Xcode signing and physical-device installation;
+- free Personal Team NFC automations through Shortcuts;
+- paid-team foreground Core NFC scanning;
+- private photo and video registration;
+- global gallery curation and device-only layout overrides.
+
 ### Local gallery storage
 
 EverAfter has no backend configuration. The shared baseline for every device is

@@ -33,6 +33,17 @@ xcodebuild \
 
 "$SCRIPT_DIR/optimize_ios_app.sh" "$APP_PATH"
 
+APP_BUNDLE_ID="$(
+  /usr/libexec/PlistBuddy \
+    -c 'Print :CFBundleIdentifier' \
+    "$APP_PATH/Info.plist"
+)"
+
+if [[ -z "$APP_BUNDLE_ID" ]]; then
+  echo "Could not read the bundle identifier from $APP_PATH" >&2
+  exit 65
+fi
+
 if codesign -d --entitlements :- "$APP_PATH" 2>&1 | rg -q \
   'com\.apple\.developer\.nfc'; then
   echo "Refusing to install: the Shortcuts build unexpectedly has an NFC entitlement." >&2
@@ -49,4 +60,4 @@ xcrun devicectl device process launch \
   --timeout 90 \
   --terminate-existing \
   --payload-url "everafter:///nfc/$TRIP_SLUG" \
-  com.example.everafter
+  "$APP_BUNDLE_ID"
