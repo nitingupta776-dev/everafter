@@ -1,5 +1,6 @@
 import 'package:everafter/data/public_demo_assets.dart';
 import 'package:everafter/theme/everafter_theme.dart';
+import 'package:everafter/widgets/memory_image.dart';
 import 'package:everafter/widgets/museum_widgets.dart';
 import 'package:everafter/widgets/trip_gallery.dart';
 import 'package:flutter/material.dart';
@@ -506,7 +507,7 @@ class _UncuratedTasteCollection extends StatelessWidget {
                       top: Radius.circular(180),
                       bottom: Radius.circular(5),
                     ),
-                    child: Image.asset(
+                    child: memoryImage(
                       trip.assetPath,
                       fit: BoxFit.cover,
                       width: double.infinity,

@@ -1,0 +1,1069 @@
+{
+  "schemaVersion": 1,
+  "artifacts": [
+    {
+      "uid": "04:00:00:00:00:01",
+      "title": "Fridge Magnet With Harbour Light",
+      "place": "Hong Kong",
+      "country": "China",
+      "dateLabel": "Demo collection",
+      "coordinates": "22.3193 N, 114.1694 E",
+      "medium": "Painted resin, ferrite, NFC tag",
+      "collection": "Pacific crossings",
+      "accessionNumber": "EA-DEMO-HKG-001",
+      "coverLine": "A small skyline held the whole evening in miniature.",
+      "modelAsset": "models/fridge_magnet/fridge_magnet.glb",
+      "colors": [
+        "burgundy",
+        "brass",
+        "olive"
+      ],
+      "chapters": [
+        {
+          "kicker": "Cover",
+          "title": "The souvenir remembers the light first.",
+          "body": "The magnet arrived home with a little theatrical confidence: brass windows, red tramlines, and a harbor that still felt warm from the walk back.",
+          "detail": "Demo NFC UID 04:00:00:00:00:01"
+        },
+        {
+          "kicker": "Journey",
+          "title": "A route traced in receipts, rain, and ferry glass.",
+          "body": "The trip moved slowly through markets, museum rooms, steep streets, and late platforms. The object is less proof of place than a bookmark for the pace of being there.",
+          "detail": "Collection note: pair with ambient audio after exhibit entry."
+        },
+        {
+          "kicker": "End",
+          "title": "Returned to the kitchen, still catalogued as elsewhere.",
+          "body": "On the fridge it becomes ordinary again. In EverAfter, the same object opens like a quiet gallery label and lets the journey breathe for a minute longer.",
+          "detail": "Local exhibit. No cloud sync required."
+        }
+      ]
+    },
+    {
+      "uid": "04:00:00:00:00:02",
+      "title": "China Travel Token",
+      "place": "China",
+      "country": "China",
+      "dateLabel": "Demo collection",
+      "coordinates": "39.9042 N, 116.4074 E",
+      "medium": "NFC tag",
+      "collection": "Mainland journeys",
+      "accessionNumber": "EA-DEMO-CHN-001",
+      "coverLine": "A small token that opens the route across China.",
+      "modelAsset": "models/fridge_magnet/fridge_magnet.glb",
+      "colors": [
+        "burgundy",
+        "brass",
+        "warmBrown"
+      ],
+      "chapters": [
+        {
+          "kicker": "Cover",
+          "title": "The journey begins with a single tap.",
+          "body": "This NFC token opens the China travel collection, from the Great Wall through Beijing, Shanghai, and Chongqing.",
+          "detail": "Demo NFC UID 04:00:00:00:00:02"
+        },
+        {
+          "kicker": "Journey",
+          "title": "Four places held inside one route.",
+          "body": "The collection moves through mountain stone, city avenues, river light, and nights layered high above the streets.",
+          "detail": "Collection note: China travel archive."
+        },
+        {
+          "kicker": "End",
+          "title": "The tag returns the journey to the room.",
+          "body": "A physical object becomes the doorway back into the photographs, films, and places gathered along the way.",
+          "detail": "Local exhibit. No cloud sync required."
+        }
+      ]
+    },
+    {
+      "uid": "04:00:00:00:00:03",
+      "title": "South Korea Travel Token",
+      "place": "South Korea",
+      "country": "South Korea",
+      "dateLabel": "Demo collection",
+      "coordinates": "37.5665 N, 126.9780 E",
+      "medium": "NFC tag",
+      "collection": "Korean journeys",
+      "accessionNumber": "EA-DEMO-KOR-001",
+      "coverLine": "A small token that opens the route across South Korea.",
+      "modelAsset": "models/fridge_magnet/fridge_magnet.glb",
+      "colors": [
+        "olive",
+        "burgundy",
+        "brass"
+      ],
+      "chapters": [
+        {
+          "kicker": "Cover",
+          "title": "The journey begins with a single tap.",
+          "body": "This NFC token opens the South Korea travel collection, moving through Seoul, Incheon, Jeju, Gyeongju, and Busan.",
+          "detail": "Demo NFC UID 04:00:00:00:00:03"
+        },
+        {
+          "kicker": "Journey",
+          "title": "Five places held inside one route.",
+          "body": "The collection moves from city streets and harbor light to island coastlines, historic paths, and evenings beside the sea.",
+          "detail": "Collection note: South Korea travel archive."
+        },
+        {
+          "kicker": "End",
+          "title": "The tag returns the journey to the room.",
+          "body": "A physical object becomes the doorway back into the photographs, films, and places gathered along the way.",
+          "detail": "Local exhibit. No cloud sync required."
+        }
+      ]
+    },
+    {
+      "uid": "04:00:00:00:00:04",
+      "title": "Japan Travel Token",
+      "place": "Japan",
+      "country": "Japan",
+      "dateLabel": "Demo collection",
+      "coordinates": "35.6762 N, 139.6503 E",
+      "medium": "NFC tag",
+      "collection": "Japanese journeys",
+      "accessionNumber": "EA-DEMO-JPN-001",
+      "coverLine": "A small token that opens the route across Japan.",
+      "modelAsset": "models/fridge_magnet/fridge_magnet.glb",
+      "colors": [
+        "burgundy",
+        "olive",
+        "brass"
+      ],
+      "chapters": [
+        {
+          "kicker": "Cover",
+          "title": "The journey begins with a single tap.",
+          "body": "This NFC token opens the Japan travel collection, moving through Tokyo, Kyoto, Osaka, Nara, and Hiroshima.",
+          "detail": "Demo NFC UID 04:00:00:00:00:04"
+        },
+        {
+          "kicker": "Journey",
+          "title": "Five places held inside one route.",
+          "body": "The collection moves through temple paths, city crossings, quiet gardens, train windows, and evenings beneath lantern light.",
+          "detail": "Collection note: Japan travel archive."
+        },
+        {
+          "kicker": "End",
+          "title": "The tag returns the journey to the room.",
+          "body": "A physical object becomes the doorway back into the photographs, films, and places gathered along the way.",
+          "detail": "Local exhibit. No cloud sync required."
+        }
+      ]
+    },
+    {
+      "uid": "04:00:00:00:00:05",
+      "title": "Taiwan Travel Token",
+      "place": "Taiwan",
+      "country": "Taiwan",
+      "dateLabel": "Demo collection",
+      "coordinates": "25.0330 N, 121.5654 E",
+      "medium": "NFC tag",
+      "collection": "Taiwan journeys",
+      "accessionNumber": "EA-DEMO-TWN-001",
+      "coverLine": "A small token that opens the route through Taiwan.",
+      "modelAsset": "models/fridge_magnet/fridge_magnet.glb",
+      "colors": [
+        "brass",
+        "burgundy",
+        "olive"
+      ],
+      "chapters": [
+        {
+          "kicker": "Cover",
+          "title": "The journey begins with a single tap.",
+          "body": "This NFC token opens the Taiwan travel collection, returning to its streets, mountain views, markets, and quiet details.",
+          "detail": "Demo NFC UID 04:00:00:00:00:05"
+        },
+        {
+          "kicker": "Journey",
+          "title": "An island held inside one route.",
+          "body": "The collection moves through city light, temple courtyards, green horizons, shared meals, and the changing pace of the road.",
+          "detail": "Collection note: Taiwan travel archive."
+        },
+        {
+          "kicker": "End",
+          "title": "The tag returns the journey to the room.",
+          "body": "A physical object becomes the doorway back into the photographs, films, and places gathered along the way.",
+          "detail": "Local exhibit. No cloud sync required."
+        }
+      ]
+    },
+    {
+      "uid": "04:00:00:00:00:06",
+      "title": "Bali Travel Token",
+      "place": "Bali",
+      "country": "Indonesia",
+      "dateLabel": "Demo collection",
+      "coordinates": "8.4095 S, 115.1889 E",
+      "medium": "NFC tag",
+      "collection": "Island journeys",
+      "accessionNumber": "EA-DEMO-BAL-001",
+      "coverLine": "A small token that opens the route through Bali.",
+      "modelAsset": "models/fridge_magnet/fridge_magnet.glb",
+      "colors": [
+        "olive",
+        "brass",
+        "burgundy"
+      ],
+      "chapters": [
+        {
+          "kicker": "Cover",
+          "title": "The journey begins with a single tap.",
+          "body": "This NFC token opens the Bali travel collection, returning to its coastlines, temples, green interiors, and evening light.",
+          "detail": "Demo NFC UID 04:00:00:00:00:06"
+        },
+        {
+          "kicker": "Journey",
+          "title": "An island held inside one route.",
+          "body": "The collection moves through warm rain, carved stone, ocean roads, shared meals, and mornings surrounded by green.",
+          "detail": "Collection note: Bali travel archive."
+        },
+        {
+          "kicker": "End",
+          "title": "The tag returns the journey to the room.",
+          "body": "A physical object becomes the doorway back into the photographs, films, and places gathered along the way.",
+          "detail": "Local exhibit. No cloud sync required."
+        }
+      ]
+    },
+    {
+      "uid": "04:00:00:00:00:07",
+      "title": "Thailand Travel Token",
+      "place": "Thailand",
+      "country": "Thailand",
+      "dateLabel": "Demo collection",
+      "coordinates": "13.7563 N, 100.5018 E",
+      "medium": "NFC tag",
+      "collection": "Thai journeys",
+      "accessionNumber": "EA-DEMO-THA-001",
+      "coverLine": "A small token that opens the route through Thailand.",
+      "modelAsset": "models/fridge_magnet/fridge_magnet.glb",
+      "colors": [
+        "brass",
+        "olive",
+        "burgundy"
+      ],
+      "chapters": [
+        {
+          "kicker": "Cover",
+          "title": "The journey begins with a single tap.",
+          "body": "This NFC token opens the Thailand travel collection, returning to its temples, city streets, coastlines, and evening markets.",
+          "detail": "Demo NFC UID 04:00:00:00:00:07"
+        },
+        {
+          "kicker": "Journey",
+          "title": "A country held inside one route.",
+          "body": "The collection moves through gold-lit courtyards, river crossings, shared meals, tropical roads, and warm nights.",
+          "detail": "Collection note: Thailand travel archive."
+        },
+        {
+          "kicker": "End",
+          "title": "The tag returns the journey to the room.",
+          "body": "A physical object becomes the doorway back into the photographs, films, and places gathered along the way.",
+          "detail": "Local exhibit. No cloud sync required."
+        }
+      ]
+    },
+    {
+      "uid": "04:00:00:00:00:08",
+      "title": "Philippines Travel Token",
+      "place": "Philippines",
+      "country": "Philippines",
+      "dateLabel": "Demo collection",
+      "coordinates": "14.5995 N, 120.9842 E",
+      "medium": "NFC tag",
+      "collection": "Philippine journeys",
+      "accessionNumber": "EA-DEMO-PHL-001",
+      "coverLine": "A small token that opens the route through the Philippines.",
+      "modelAsset": "models/fridge_magnet/fridge_magnet.glb",
+      "colors": [
+        "olive",
+        "brass",
+        "burgundy"
+      ],
+      "chapters": [
+        {
+          "kicker": "Cover",
+          "title": "The journey begins with a single tap.",
+          "body": "This NFC token opens the Philippines travel collection, returning to its islands, city streets, coastlines, and clear water.",
+          "detail": "Demo NFC UID 04:00:00:00:00:08"
+        },
+        {
+          "kicker": "Journey",
+          "title": "An archipelago held inside one route.",
+          "body": "The collection moves through boat crossings, limestone horizons, shared meals, tropical roads, and evenings beside the sea.",
+          "detail": "Collection note: Philippines travel archive."
+        },
+        {
+          "kicker": "End",
+          "title": "The tag returns the journey to the room.",
+          "body": "A physical object becomes the doorway back into the photographs, films, and places gathered along the way.",
+          "detail": "Local exhibit. No cloud sync required."
+        }
+      ]
+    },
+    {
+      "uid": "04:00:00:00:00:09",
+      "title": "Vietnam Travel Token",
+      "place": "Vietnam",
+      "country": "Vietnam",
+      "dateLabel": "Demo collection",
+      "coordinates": "15.8801 N, 108.3380 E",
+      "medium": "NFC tag",
+      "collection": "Vietnam journeys",
+      "accessionNumber": "EA-DEMO-VNM-001",
+      "coverLine": "A small token that opens the route through Vietnam.",
+      "modelAsset": "models/fridge_magnet/fridge_magnet.glb",
+      "colors": [
+        "burgundy",
+        "brass",
+        "olive"
+      ],
+      "chapters": [
+        {
+          "kicker": "Cover",
+          "title": "The journey begins with a single tap.",
+          "body": "This NFC token opens the Vietnam travel collection, returning to its cities, coastlines, rivers, and mountain roads.",
+          "detail": "Demo NFC UID 04:00:00:00:00:09"
+        },
+        {
+          "kicker": "Journey",
+          "title": "A country held inside one route.",
+          "body": "The collection moves through busy streets, quiet water, shared meals, green horizons, and evenings lit by lanterns.",
+          "detail": "Collection note: Vietnam travel archive."
+        },
+        {
+          "kicker": "End",
+          "title": "The tag returns the journey to the room.",
+          "body": "A physical object becomes the doorway back into the photographs, films, and places gathered along the way.",
+          "detail": "Local exhibit. No cloud sync required."
+        }
+      ]
+    },
+    {
+      "uid": "04:00:00:00:00:0A",
+      "title": "Sri Lanka Travel Token",
+      "place": "Sri Lanka",
+      "country": "Sri Lanka",
+      "dateLabel": "Demo collection",
+      "coordinates": "7.9570 N, 80.7603 E",
+      "medium": "NFC tag",
+      "collection": "Sri Lankan journeys",
+      "accessionNumber": "EA-DEMO-LKA-001",
+      "coverLine": "A small token that opens the route through Sri Lanka.",
+      "modelAsset": "models/fridge_magnet/fridge_magnet.glb",
+      "colors": [
+        "brass",
+        "olive",
+        "burgundy"
+      ],
+      "chapters": [
+        {
+          "kicker": "Cover",
+          "title": "The journey begins with a single tap.",
+          "body": "This NFC token opens the Sri Lanka travel collection, returning to its coastlines, hill country, cities, and ancient paths.",
+          "detail": "Demo NFC UID 04:00:00:00:00:0A"
+        },
+        {
+          "kicker": "Journey",
+          "title": "An island held inside one route.",
+          "body": "The collection moves through tea-green hills, railway windows, warm beaches, shared meals, and roads beside the sea.",
+          "detail": "Collection note: Sri Lanka travel archive."
+        },
+        {
+          "kicker": "End",
+          "title": "The tag returns the journey to the room.",
+          "body": "A physical object becomes the doorway back into the photographs, films, and places gathered along the way.",
+          "detail": "Local exhibit. No cloud sync required."
+        }
+      ]
+    },
+    {
+      "uid": "04:00:00:00:00:0B",
+      "title": "Station Ticket Stub",
+      "place": "Kyoto",
+      "country": "Japan",
+      "dateLabel": "Demo collection",
+      "coordinates": "35.0116 N, 135.7681 E",
+      "medium": "Thermal paper, ink, NFC tag",
+      "collection": "Quiet rail journeys",
+      "accessionNumber": "EA-DEMO-KYO-014",
+      "coverLine": "A paper rectangle from a morning of temples and rain.",
+      "modelAsset": "models/fridge_magnet/fridge_magnet.glb",
+      "colors": [
+        "olive",
+        "burgundy",
+        "warmBrown"
+      ],
+      "chapters": [
+        {
+          "kicker": "Cover",
+          "title": "The platform clock held the first memory.",
+          "body": "A stub saved between pages, creased at one corner, still carrying the exactness of a departure board.",
+          "detail": "Archive status: digitized label only."
+        },
+        {
+          "kicker": "Journey",
+          "title": "Stone paths, cedar shade, and soft station bells.",
+          "body": "The exhibit keeps the sequence sparse: a gate, a train, a bowl of noodles, and a long walk back under umbrellas.",
+          "detail": "Suggested media: audio field notes."
+        },
+        {
+          "kicker": "End",
+          "title": "Filed under motion.",
+          "body": "The ticket is fragile, so the memory becomes the object you can handle.",
+          "detail": "Local exhibit. Ready for future NFC binding."
+        }
+      ]
+    },
+    {
+      "uid": "04:00:00:00:00:0C",
+      "title": "Black Sand Vial",
+      "place": "Vik",
+      "country": "Iceland",
+      "dateLabel": "Demo collection",
+      "coordinates": "63.4186 N, 19.0060 W",
+      "medium": "Glass, basalt sand, cork",
+      "collection": "Northern weather",
+      "accessionNumber": "EA-DEMO-VIK-003",
+      "coverLine": "A storm kept in a bottle without making a sound.",
+      "modelAsset": "models/fridge_magnet/fridge_magnet.glb",
+      "colors": [
+        "ink",
+        "olive",
+        "brass"
+      ],
+      "chapters": [
+        {
+          "kicker": "Cover",
+          "title": "The shore was nearly monochrome.",
+          "body": "Wind pressed every sentence flat. The sand looked like ground ink and made the horizon feel older than the trip.",
+          "detail": "Archive status: pending object scan."
+        },
+        {
+          "kicker": "Journey",
+          "title": "Weather as the main exhibit.",
+          "body": "The route is remembered by what had to be leaned into: rain, wool, hot soup, and a road disappearing into white.",
+          "detail": "Suggested media: map and low ambient audio."
+        },
+        {
+          "kicker": "End",
+          "title": "A landscape small enough to shelve.",
+          "body": "The vial keeps the scale impossible, which is why it belongs in the museum.",
+          "detail": "Local exhibit. Ready for future NFC binding."
+        }
+      ]
+    },
+    {
+      "uid": "04:15:97:5E:D7:2A:81",
+      "title": "Alaska Travel Token",
+      "place": "Alaska",
+      "country": "United States",
+      "dateLabel": "Undated",
+      "coordinates": "61.2181 N, 149.9003 W",
+      "medium": "NFC tag",
+      "collection": "Alaska journeys",
+      "accessionNumber": "EA-ALASKA-001",
+      "coverLine": "A small token that opens the route through Alaska.",
+      "modelAsset": "models/fridge_magnet/fridge_magnet.glb",
+      "colors": [
+        "burgundy",
+        "brass",
+        "olive"
+      ],
+      "chapters": [
+        {
+          "kicker": "Cover",
+          "title": "The journey begins with a single tap.",
+          "body": "",
+          "detail": ""
+        },
+        {
+          "kicker": "Journey",
+          "title": "A route held inside one trip.",
+          "body": "",
+          "detail": ""
+        },
+        {
+          "kicker": "End",
+          "title": "The tag returns the journey to the room.",
+          "body": "",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "uid": "04:4A:9D:5E:D7:2A:81",
+      "title": "Bangkok Travel Token",
+      "place": "Bangkok",
+      "country": "Thailand",
+      "dateLabel": "Undated",
+      "coordinates": "13.7563 N, 100.5018 E",
+      "medium": "NFC tag",
+      "collection": "Bangkok journeys",
+      "accessionNumber": "EA-BANGKOK-001",
+      "coverLine": "A small token that opens the route through Bangkok.",
+      "modelAsset": "models/fridge_magnet/fridge_magnet.glb",
+      "colors": [
+        "brass",
+        "olive",
+        "burgundy"
+      ],
+      "chapters": [
+        {
+          "kicker": "Cover",
+          "title": "The journey begins with a single tap.",
+          "body": "",
+          "detail": ""
+        },
+        {
+          "kicker": "Journey",
+          "title": "A route held inside one trip.",
+          "body": "",
+          "detail": ""
+        },
+        {
+          "kicker": "End",
+          "title": "The tag returns the journey to the room.",
+          "body": "",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "uid": "04:EF:A2:5E:D7:2A:81",
+      "title": "Belize Travel Token",
+      "place": "Belize",
+      "country": "Belize",
+      "dateLabel": "Undated",
+      "coordinates": "17.1899 N, 88.4976 W",
+      "medium": "NFC tag",
+      "collection": "Belize journeys",
+      "accessionNumber": "EA-BELIZE-001",
+      "coverLine": "A small token that opens the route through Belize.",
+      "modelAsset": "models/fridge_magnet/fridge_magnet.glb",
+      "colors": [
+        "olive",
+        "brass",
+        "burgundy"
+      ],
+      "chapters": [
+        {
+          "kicker": "Cover",
+          "title": "The journey begins with a single tap.",
+          "body": "",
+          "detail": ""
+        },
+        {
+          "kicker": "Journey",
+          "title": "A route held inside one trip.",
+          "body": "",
+          "detail": ""
+        },
+        {
+          "kicker": "End",
+          "title": "The tag returns the journey to the room.",
+          "body": "",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "uid": "04:55:9D:5E:D7:2A:81",
+      "title": "Costa Maya Travel Token",
+      "place": "Costa Maya",
+      "country": "Mexico",
+      "dateLabel": "Undated",
+      "coordinates": "18.7333 N, 87.7000 W",
+      "medium": "NFC tag",
+      "collection": "Costa Maya journeys",
+      "accessionNumber": "EA-COSTA-MAYA-001",
+      "coverLine": "A small token that opens the route through Costa Maya.",
+      "modelAsset": "models/fridge_magnet/fridge_magnet.glb",
+      "colors": [
+        "burgundy",
+        "olive",
+        "brass"
+      ],
+      "chapters": [
+        {
+          "kicker": "Cover",
+          "title": "The journey begins with a single tap.",
+          "body": "",
+          "detail": ""
+        },
+        {
+          "kicker": "Journey",
+          "title": "A route held inside one trip.",
+          "body": "",
+          "detail": ""
+        },
+        {
+          "kicker": "End",
+          "title": "The tag returns the journey to the room.",
+          "body": "",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "uid": "04:BE:9B:5E:D7:2A:81",
+      "title": "Cozumel Travel Token",
+      "place": "Cozumel",
+      "country": "Mexico",
+      "dateLabel": "Undated",
+      "coordinates": "20.4230 N, 86.9223 W",
+      "medium": "NFC tag",
+      "collection": "Cozumel journeys",
+      "accessionNumber": "EA-COZUMEL-001",
+      "coverLine": "A small token that opens the route through Cozumel.",
+      "modelAsset": "models/fridge_magnet/fridge_magnet.glb",
+      "colors": [
+        "brass",
+        "burgundy",
+        "olive"
+      ],
+      "chapters": [
+        {
+          "kicker": "Cover",
+          "title": "The journey begins with a single tap.",
+          "body": "",
+          "detail": ""
+        },
+        {
+          "kicker": "Journey",
+          "title": "A route held inside one trip.",
+          "body": "",
+          "detail": ""
+        },
+        {
+          "kicker": "End",
+          "title": "The tag returns the journey to the room.",
+          "body": "",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "uid": "04:73:A1:5E:D7:2A:81",
+      "title": "Kasauli Travel Token",
+      "place": "Kasauli",
+      "country": "India",
+      "dateLabel": "Undated",
+      "coordinates": "30.8989 N, 76.9668 E",
+      "medium": "NFC tag",
+      "collection": "Kasauli journeys",
+      "accessionNumber": "EA-KASAULI-001",
+      "coverLine": "A small token that opens the route through Kasauli.",
+      "modelAsset": "models/fridge_magnet/fridge_magnet.glb",
+      "colors": [
+        "olive",
+        "burgundy",
+        "brass"
+      ],
+      "chapters": [
+        {
+          "kicker": "Cover",
+          "title": "The journey begins with a single tap.",
+          "body": "",
+          "detail": ""
+        },
+        {
+          "kicker": "Journey",
+          "title": "A route held inside one trip.",
+          "body": "",
+          "detail": ""
+        },
+        {
+          "kicker": "End",
+          "title": "The tag returns the journey to the room.",
+          "body": "",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "uid": "04:F3:AB:5E:D7:2A:81",
+      "title": "Las Vegas Travel Token",
+      "place": "Las Vegas",
+      "country": "United States",
+      "dateLabel": "Undated",
+      "coordinates": "36.1699 N, 115.1398 W",
+      "medium": "NFC tag",
+      "collection": "Las Vegas journeys",
+      "accessionNumber": "EA-LAS-VEGAS-001",
+      "coverLine": "A small token that opens the route through Las Vegas.",
+      "modelAsset": "models/fridge_magnet/fridge_magnet.glb",
+      "colors": [
+        "brass",
+        "olive",
+        "burgundy"
+      ],
+      "chapters": [
+        {
+          "kicker": "Cover",
+          "title": "The journey begins with a single tap.",
+          "body": "",
+          "detail": ""
+        },
+        {
+          "kicker": "Journey",
+          "title": "A route held inside one trip.",
+          "body": "",
+          "detail": ""
+        },
+        {
+          "kicker": "End",
+          "title": "The tag returns the journey to the room.",
+          "body": "",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "uid": "04:C4:BB:5E:D7:2A:81",
+      "title": "Montreal Travel Token",
+      "place": "Montreal",
+      "country": "Canada",
+      "dateLabel": "Undated",
+      "coordinates": "45.5017 N, 73.5673 W",
+      "medium": "NFC tag",
+      "collection": "Montreal journeys",
+      "accessionNumber": "EA-MONTREAL-001",
+      "coverLine": "A small token that opens the route through Montreal.",
+      "modelAsset": "models/fridge_magnet/fridge_magnet.glb",
+      "colors": [
+        "burgundy",
+        "brass",
+        "olive"
+      ],
+      "chapters": [
+        {
+          "kicker": "Cover",
+          "title": "The journey begins with a single tap.",
+          "body": "",
+          "detail": ""
+        },
+        {
+          "kicker": "Journey",
+          "title": "A route held inside one trip.",
+          "body": "",
+          "detail": ""
+        },
+        {
+          "kicker": "End",
+          "title": "The tag returns the journey to the room.",
+          "body": "",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "uid": "04:FA:96:5E:D7:2A:81",
+      "title": "Niagara Falls Travel Token",
+      "place": "Niagara Falls",
+      "country": "Canada",
+      "dateLabel": "Undated",
+      "coordinates": "43.0896 N, 79.0849 W",
+      "medium": "NFC tag",
+      "collection": "Niagara Falls journeys",
+      "accessionNumber": "EA-NIAGARA-001",
+      "coverLine": "A small token that opens the route through Niagara Falls.",
+      "modelAsset": "models/fridge_magnet/fridge_magnet.glb",
+      "colors": [
+        "olive",
+        "brass",
+        "burgundy"
+      ],
+      "chapters": [
+        {
+          "kicker": "Cover",
+          "title": "The journey begins with a single tap.",
+          "body": "",
+          "detail": ""
+        },
+        {
+          "kicker": "Journey",
+          "title": "A route held inside one trip.",
+          "body": "",
+          "detail": ""
+        },
+        {
+          "kicker": "End",
+          "title": "The tag returns the journey to the room.",
+          "body": "",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "uid": "04:19:A6:5E:D7:2A:81",
+      "title": "Phuket Travel Token",
+      "place": "Phuket",
+      "country": "Thailand",
+      "dateLabel": "Undated",
+      "coordinates": "7.8804 N, 98.3923 E",
+      "medium": "NFC tag",
+      "collection": "Phuket journeys",
+      "accessionNumber": "EA-PHUKET-001",
+      "coverLine": "A small token that opens the route through Phuket.",
+      "modelAsset": "models/fridge_magnet/fridge_magnet.glb",
+      "colors": [
+        "brass",
+        "burgundy",
+        "olive"
+      ],
+      "chapters": [
+        {
+          "kicker": "Cover",
+          "title": "The journey begins with a single tap.",
+          "body": "",
+          "detail": ""
+        },
+        {
+          "kicker": "Journey",
+          "title": "A route held inside one trip.",
+          "body": "",
+          "detail": ""
+        },
+        {
+          "kicker": "End",
+          "title": "The tag returns the journey to the room.",
+          "body": "",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "uid": "04:99:A7:5E:D7:2A:81",
+      "title": "Portland Travel Token",
+      "place": "Portland",
+      "country": "United States",
+      "dateLabel": "Undated",
+      "coordinates": "45.5152 N, 122.6784 W",
+      "medium": "NFC tag",
+      "collection": "Portland journeys",
+      "accessionNumber": "EA-PORTLAND-001",
+      "coverLine": "A small token that opens the route through Portland.",
+      "modelAsset": "models/fridge_magnet/fridge_magnet.glb",
+      "colors": [
+        "olive",
+        "brass",
+        "burgundy"
+      ],
+      "chapters": [
+        {
+          "kicker": "Cover",
+          "title": "The journey begins with a single tap.",
+          "body": "",
+          "detail": ""
+        },
+        {
+          "kicker": "Journey",
+          "title": "A route held inside one trip.",
+          "body": "",
+          "detail": ""
+        },
+        {
+          "kicker": "End",
+          "title": "The tag returns the journey to the room.",
+          "body": "",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "uid": "04:14:B4:5E:D7:2A:81",
+      "title": "Quebec City Travel Token",
+      "place": "Quebec City",
+      "country": "Canada",
+      "dateLabel": "Undated",
+      "coordinates": "46.8139 N, 71.2080 W",
+      "medium": "NFC tag",
+      "collection": "Quebec City journeys",
+      "accessionNumber": "EA-QUEBEC-001",
+      "coverLine": "A small token that opens the route through Quebec City.",
+      "modelAsset": "models/fridge_magnet/fridge_magnet.glb",
+      "colors": [
+        "burgundy",
+        "olive",
+        "brass"
+      ],
+      "chapters": [
+        {
+          "kicker": "Cover",
+          "title": "The journey begins with a single tap.",
+          "body": "",
+          "detail": ""
+        },
+        {
+          "kicker": "Journey",
+          "title": "A route held inside one trip.",
+          "body": "",
+          "detail": ""
+        },
+        {
+          "kicker": "End",
+          "title": "The tag returns the journey to the room.",
+          "body": "",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "uid": "04:94:AA:5E:D7:2A:81",
+      "title": "Roatan Travel Token",
+      "place": "Roatan",
+      "country": "Honduras",
+      "dateLabel": "Undated",
+      "coordinates": "16.3252 N, 86.5292 W",
+      "medium": "NFC tag",
+      "collection": "Roatan journeys",
+      "accessionNumber": "EA-ROATAN-001",
+      "coverLine": "A small token that opens the route through Roatan.",
+      "modelAsset": "models/fridge_magnet/fridge_magnet.glb",
+      "colors": [
+        "brass",
+        "olive",
+        "burgundy"
+      ],
+      "chapters": [
+        {
+          "kicker": "Cover",
+          "title": "The journey begins with a single tap.",
+          "body": "",
+          "detail": ""
+        },
+        {
+          "kicker": "Journey",
+          "title": "A route held inside one trip.",
+          "body": "",
+          "detail": ""
+        },
+        {
+          "kicker": "End",
+          "title": "The tag returns the journey to the room.",
+          "body": "",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "uid": "04:1C:BF:5E:D7:2A:81",
+      "title": "Toronto Travel Token",
+      "place": "Toronto",
+      "country": "Canada",
+      "dateLabel": "Undated",
+      "coordinates": "43.6532 N, 79.3832 W",
+      "medium": "NFC tag",
+      "collection": "Toronto journeys",
+      "accessionNumber": "EA-TORONTO-001",
+      "coverLine": "A small token that opens the route through Toronto.",
+      "modelAsset": "models/fridge_magnet/fridge_magnet.glb",
+      "colors": [
+        "olive",
+        "burgundy",
+        "brass"
+      ],
+      "chapters": [
+        {
+          "kicker": "Cover",
+          "title": "The journey begins with a single tap.",
+          "body": "",
+          "detail": ""
+        },
+        {
+          "kicker": "Journey",
+          "title": "A route held inside one trip.",
+          "body": "",
+          "detail": ""
+        },
+        {
+          "kicker": "End",
+          "title": "The tag returns the journey to the room.",
+          "body": "",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "uid": "04:89:AA:5E:D7:2A:81",
+      "title": "Tulip Farms Travel Token",
+      "place": "Tulip Farms",
+      "country": "United States",
+      "dateLabel": "Undated",
+      "coordinates": "48.4373 N, 122.3809 W",
+      "medium": "NFC tag",
+      "collection": "Tulip Farms journeys",
+      "accessionNumber": "EA-TULIP-FARMS-001",
+      "coverLine": "A small token that opens the route through Tulip Farms.",
+      "modelAsset": "models/fridge_magnet/fridge_magnet.glb",
+      "colors": [
+        "burgundy",
+        "brass",
+        "olive"
+      ],
+      "chapters": [
+        {
+          "kicker": "Cover",
+          "title": "The journey begins with a single tap.",
+          "body": "",
+          "detail": ""
+        },
+        {
+          "kicker": "Journey",
+          "title": "A route held inside one trip.",
+          "body": "",
+          "detail": ""
+        },
+        {
+          "kicker": "End",
+          "title": "The tag returns the journey to the room.",
+          "body": "",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "uid": "04:2E:B9:5E:D7:2A:81",
+      "title": "Victoria Travel Token",
+      "place": "Victoria",
+      "country": "Canada",
+      "dateLabel": "Undated",
+      "coordinates": "48.4284 N, 123.3656 W",
+      "medium": "NFC tag",
+      "collection": "Victoria journeys",
+      "accessionNumber": "EA-VICTORIA-001",
+      "coverLine": "A small token that opens the route through Victoria.",
+      "modelAsset": "models/fridge_magnet/fridge_magnet.glb",
+      "colors": [
+        "brass",
+        "olive",
+        "burgundy"
+      ],
+      "chapters": [
+        {
+          "kicker": "Cover",
+          "title": "The journey begins with a single tap.",
+          "body": "",
+          "detail": ""
+        },
+        {
+          "kicker": "Journey",
+          "title": "A route held inside one trip.",
+          "body": "",
+          "detail": ""
+        },
+        {
+          "kicker": "End",
+          "title": "The tag returns the journey to the room.",
+          "body": "",
+          "detail": ""
+        }
+      ]
+    }
+  ]
+}

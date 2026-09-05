@@ -111,3 +111,5 @@ app.*.map.json
 
 # Local agent/project instructions contain deployment-specific endpoints.
 /AGENTS.md
+# Widget Preview related
+.widget_preview/

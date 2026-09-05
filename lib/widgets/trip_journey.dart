@@ -15,6 +15,7 @@ import 'package:everafter/data/philippines_boundary.dart';
 import 'package:everafter/data/south_korea_boundary.dart';
 import 'package:everafter/data/taiwan_boundary.dart';
 import 'package:everafter/data/thailand_boundary.dart';
+import 'package:everafter/data/trip_catalog_store.dart';
 import 'package:everafter/data/turkey_boundary.dart';
 import 'package:everafter/data/sri_lanka_boundary.dart';
 import 'package:everafter/data/vietnam_boundary.dart';
@@ -24,8 +25,8 @@ import 'package:everafter/widgets/ambient_soundtrack.dart';
 import 'package:everafter/widgets/gallery_trinket_image.dart';
 import 'package:everafter/widgets/memory_video_surface_stub.dart'
     if (dart.library.js_interop) 'package:everafter/widgets/memory_video_surface_web.dart';
+import 'package:everafter/widgets/memory_image.dart';
 import 'package:everafter/widgets/museum_widgets.dart';
-import 'package:everafter/widgets/trip_gallery.dart';
 import 'package:flutter/material.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
@@ -38,7 +39,7 @@ const BoxFit memoryVideoSurfaceFit = BoxFit.fill;
 double _galleryEditorialTitleLeft(TripGalleryItem trip) =>
     trip.slug == 'japan' ? 4348 : 3070;
 
-bool galleryAutoplaysVideosFor(TripGalleryItem _) => false;
+bool galleryAutoplaysVideosFor(TripGalleryItem _) => true;
 
 bool memoryMediaUsesColorTreatment({
   required bool isVideo,
@@ -788,6 +789,22 @@ class _ProjectedDestinationOutlinePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    final rings = destinationBoundaryRingsFor(trip);
+    if (rings.isEmpty) {
+      // No boundary polygon for this destination — draw a glowing pin instead.
+      final point = _projectGlobeCoordinate(
+        latitude: trip.latitude,
+        longitude: trip.longitude,
+        frame: frame,
+        size: size,
+        latitudeAtCenter: _cameraLatitudeForTrip(trip),
+        longitudePhase: _longitudePhaseForTrip(trip),
+      );
+      if (point != null) {
+        _paintDestinationPin(canvas, point, glow);
+      }
+      return;
+    }
     final path = projectedDestinationBoundaryPathForFrame(trip, frame, size);
     _paintDestinationOutline(canvas, path, glow);
   }
@@ -801,12 +818,16 @@ class _ProjectedDestinationOutlinePainter extends CustomPainter {
 }
 
 Path projectedJapanBoundaryPathForFrame(int frame, Size size) {
-  final japan = tripGalleryItems.first;
+  final japan = TripCatalogStore.instance.allTrips.firstWhere(
+    (trip) => trip.slug == 'japan',
+  );
   return projectedDestinationBoundaryPathForFrame(japan, frame, size);
 }
 
 Path projectedChinaBoundaryPathForFrame(int frame, Size size) {
-  final china = tripGalleryItems.firstWhere((trip) => trip.slug == 'china');
+  final china = TripCatalogStore.instance.allTrips.firstWhere(
+    (trip) => trip.slug == 'china',
+  );
   return projectedDestinationBoundaryPathForFrame(china, frame, size);
 }
 
@@ -837,7 +858,14 @@ List<List<Offset>> destinationBoundaryRingsFor(TripGalleryItem trip) {
     'bali' => baliBoundaryRings,
     'vietnam' => vietnamBoundaryRings,
     'sri-lanka' => sriLankaBoundaryRings,
-    _ => throw ArgumentError.value(trip.slug, 'trip', 'Missing boundary data'),
+    // Bangkok and Phuket are both within Thailand's borders, so they reuse
+    // the same outline.
+    'bangkok' || 'phuket' => thailandBoundaryRings,
+    // Destinations without hand-authored boundary polygon data (mostly
+    // cities and regions outside the original demo's Asia route) still get
+    // a rotating globe centered on their coordinates, just without the
+    // glowing country-outline overlay.
+    _ => const <List<Offset>>[],
   };
 }
 
@@ -915,6 +943,49 @@ void _paintDestinationOutline(Canvas canvas, Path path, double glow) {
       ..strokeCap = StrokeCap.round
       ..color = const Color(0xFFFFF4C8),
   );
+}
+
+/// Draws a glowing pin/dot for destinations that have no boundary polygon.
+/// Matches the visual language of [_paintDestinationOutline].
+void _paintDestinationPin(Canvas canvas, Offset center, double glow) {
+  // Outer haze
+  canvas.drawCircle(
+    center,
+    32,
+    Paint()
+      ..color = EverAfterColors.brass.withValues(alpha: 0.22 * glow)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 22),
+  );
+  // Soft glowing ring
+  canvas.drawCircle(
+    center,
+    14,
+    Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 9
+      ..color = const Color(0xFFDBB96B).withValues(alpha: 0.42 * glow)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8),
+  );
+  // Bright ring
+  canvas.drawCircle(
+    center,
+    14,
+    Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3.2
+      ..color = const Color(0xFFF4D98D).withValues(alpha: 0.72 * glow),
+  );
+  // Crisp outer edge
+  canvas.drawCircle(
+    center,
+    14,
+    Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.15
+      ..color = const Color(0xFFFFF4C8),
+  );
+  // Core dot
+  canvas.drawCircle(center, 5, Paint()..color = const Color(0xFFFFF4C8));
 }
 
 class _BaroqueGalleryWall extends StatelessWidget {
@@ -3042,7 +3113,7 @@ class _BaroqueMemoryFrame extends StatelessWidget {
               else
                 Transform.scale(
                   scale: selectedMedia.zoom,
-                  child: Image.asset(
+                  child: memoryImage(
                     selectedMedia.displayAssetPath,
                     fit: BoxFit.cover,
                     alignment: mediaAlignment,
@@ -3296,7 +3367,10 @@ class _LoopingMemoryVideoState extends State<_LoopingMemoryVideo> {
       return;
     }
     await player.setPlaylistMode(PlaylistMode.single);
-    await player.open(Media('asset:///${widget.assetPath}'));
+    final assetPath = widget.assetPath;
+    await player.open(
+      Media(isBundledAssetPath(assetPath) ? 'asset:///$assetPath' : assetPath),
+    );
   }
 
   @override
@@ -3313,7 +3387,7 @@ class _LoopingMemoryVideoState extends State<_LoopingMemoryVideo> {
     return Stack(
       fit: StackFit.expand,
       children: <Widget>[
-        Image.asset(
+        memoryImage(
           widget.posterAssetPath,
           fit: BoxFit.cover,
           alignment: widget.alignment,

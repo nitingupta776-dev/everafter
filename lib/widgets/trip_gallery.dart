@@ -1,137 +1,14 @@
 import 'dart:math' as math;
 
-import 'package:everafter/data/public_demo_assets.dart';
+import 'package:everafter/data/trip_catalog_store.dart';
 import 'package:everafter/theme/everafter_theme.dart';
 import 'package:everafter/widgets/ambient_soundtrack.dart';
+import 'package:everafter/widgets/memory_image.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
-class TripGalleryItem {
-  const TripGalleryItem({
-    required this.number,
-    required this.name,
-    required this.assetPath,
-    this.startDateLabel,
-    this.endDateLabel,
-    this.totalDays,
-    required this.latitude,
-    required this.longitude,
-  });
-
-  final int number;
-  final String name;
-  final String assetPath;
-  final String? startDateLabel;
-  final String? endDateLabel;
-  final int? totalDays;
-  final double latitude;
-  final double longitude;
-
-  String get slug => name.toLowerCase().replaceAll(' ', '-');
-
-  String get portraitAssetPath => assetPath;
-
-  String get dateRangeLabel {
-    final start = startDateLabel;
-    final end = endDateLabel;
-    return start != null && end != null
-        ? '$start  →  $end'
-        : 'DATES TO BE ADDED';
-  }
-
-  String? get durationLabel => switch (totalDays) {
-    final days? => '$days DAYS',
-    null => null,
-  };
-}
-
-const List<TripGalleryItem> tripGalleryItems = <TripGalleryItem>[
-  TripGalleryItem(
-    number: 1,
-    name: 'Japan',
-    assetPath: publicMemoryPlaceholderAsset,
-    latitude: 35.6762,
-    longitude: 139.6503,
-  ),
-  TripGalleryItem(
-    number: 5,
-    name: 'South Korea',
-    assetPath: publicMemoryPlaceholderAsset,
-    latitude: 37.5665,
-    longitude: 126.9780,
-  ),
-  TripGalleryItem(
-    number: 2,
-    name: 'China',
-    assetPath: publicMemoryPlaceholderAsset,
-    latitude: 39.9042,
-    longitude: 116.4074,
-  ),
-  TripGalleryItem(
-    number: 6,
-    name: 'Philippines',
-    assetPath: publicMemoryPlaceholderAsset,
-    latitude: 14.5995,
-    longitude: 120.9842,
-  ),
-  TripGalleryItem(
-    number: 3,
-    name: 'Turkey',
-    assetPath: publicMemoryPlaceholderAsset,
-    latitude: 41.0082,
-    longitude: 28.9784,
-  ),
-  TripGalleryItem(
-    number: 7,
-    name: 'Taiwan',
-    assetPath: publicMemoryPlaceholderAsset,
-    latitude: 25.0330,
-    longitude: 121.5654,
-  ),
-  TripGalleryItem(
-    number: 4,
-    name: 'Hong Kong',
-    assetPath: publicMemoryPlaceholderAsset,
-    latitude: 22.3193,
-    longitude: 114.1694,
-  ),
-  TripGalleryItem(
-    number: 8,
-    name: 'Thailand',
-    assetPath: publicMemoryPlaceholderAsset,
-    latitude: 13.7563,
-    longitude: 100.5018,
-  ),
-  TripGalleryItem(
-    number: 9,
-    name: 'Malaysia',
-    assetPath: publicMemoryPlaceholderAsset,
-    latitude: 3.1390,
-    longitude: 101.6869,
-  ),
-  TripGalleryItem(
-    number: 10,
-    name: 'Bali',
-    assetPath: publicMemoryPlaceholderAsset,
-    latitude: -8.4095,
-    longitude: 115.1889,
-  ),
-  TripGalleryItem(
-    number: 11,
-    name: 'Vietnam',
-    assetPath: publicMemoryPlaceholderAsset,
-    latitude: 15.8801,
-    longitude: 108.3380,
-  ),
-  TripGalleryItem(
-    number: 12,
-    name: 'Sri Lanka',
-    assetPath: publicMemoryPlaceholderAsset,
-    latitude: 7.9570,
-    longitude: 80.7603,
-  ),
-];
+export 'package:everafter/data/trip_catalog_store.dart' show TripGalleryItem;
 
 class TripGallery extends StatefulWidget {
   const TripGallery({
@@ -221,13 +98,31 @@ class _TripGalleryState extends State<TripGallery>
 
   @override
   Widget build(BuildContext context) {
+    return ListenableBuilder(
+      listenable: TripCatalogStore.instance,
+      builder: (context, _) => _buildGallery(context),
+    );
+  }
+
+  Widget _buildGallery(BuildContext context) {
+    final visibleTrips = TripCatalogStore.instance.trips;
+    if (visibleTrips.isEmpty) {
+      return const Center(
+        child: Text(
+          'No visited trips yet. Mark a destination as visited in the '
+          'trips admin to see it here.',
+          textAlign: TextAlign.center,
+          style: TextStyle(color: EverAfterColors.warmBrown),
+        ),
+      );
+    }
     return LayoutBuilder(
       builder: (context, constraints) {
         final cardWidth =
             (constraints.maxWidth -
                 TripGallery.columnSpacing * (TripGallery.visibleColumns - 1)) /
             TripGallery.visibleColumns;
-        final galleryItemCount = tripGalleryItems.length;
+        final galleryItemCount = visibleTrips.length;
         final columnsPerCycle = (galleryItemCount / TripGallery.rowCount)
             .ceil();
         _cycleExtent =
@@ -262,7 +157,7 @@ class _TripGalleryState extends State<TripGallery>
               itemCount: galleryItemCount * _loopCopies,
               itemBuilder: (context, index) {
                 final localIndex = index % galleryItemCount;
-                final trip = tripGalleryItems[localIndex];
+                final trip = visibleTrips[localIndex];
                 final heroTag = 'trip-gallery-$index-${trip.slug}';
                 final placement = _handPlacedCardVariation(trip.number);
                 return Transform.translate(
@@ -668,6 +563,17 @@ class TripHeroImage extends StatelessWidget {
   final TripGalleryItem trip;
   final bool fullBleed;
 
+  String get _coverPath {
+    if (trip.assetPath != tripGalleryPlaceholderAsset) return trip.assetPath;
+    for (final location
+        in TripCatalogStore.instance.memoryLocationsFor(trip.slug)) {
+      for (final asset in location.media) {
+        if (!asset.isVideo) return asset.assetPath;
+      }
+    }
+    return trip.assetPath;
+  }
+
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
@@ -677,8 +583,8 @@ class TripHeroImage extends StatelessWidget {
               top: Radius.circular(66),
               bottom: Radius.circular(1),
             ),
-      child: Image.asset(
-        trip.assetPath,
+      child: memoryImage(
+        _coverPath,
         fit: BoxFit.cover,
         alignment: fullBleed ? Alignment.center : const Alignment(0, -0.08),
         filterQuality: FilterQuality.high,
@@ -802,7 +708,7 @@ Widget tripImageFlightShuttleBuilder(
                         child: ClipRRect(
                           key: const ValueKey('trip-flight-image'),
                           borderRadius: borderRadius,
-                          child: Image.asset(
+                          child: memoryImage(
                             trip.assetPath,
                             fit: BoxFit.cover,
                             alignment: alignment,

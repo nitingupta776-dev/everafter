@@ -3,9 +3,10 @@ import 'dart:math' as math;
 import 'package:everafter/data/gallery_layout.dart';
 import 'package:everafter/data/gallery_memory_content.dart';
 import 'package:everafter/data/japan_instagram_posts.dart';
+import 'package:everafter/data/trip_catalog_store.dart';
 import 'package:everafter/theme/everafter_theme.dart';
 import 'package:everafter/widgets/gallery_trinket_image.dart';
-import 'package:everafter/widgets/trip_gallery.dart';
+import 'package:everafter/widgets/memory_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -23,13 +24,14 @@ class _GalleryAdminScreenState extends State<GalleryAdminScreen> {
   static const double _frameScale = 2.3;
 
   final GalleryLayoutStore _store = GalleryLayoutStore.instance;
-  String _tripSlug = tripGalleryItems.first.slug;
+  String _tripSlug = TripCatalogStore.instance.allTrips.first.slug;
   _SelectedGalleryItem? _selection;
   _SelectedGalleryItem? _activeResize;
   double _canvasScale = _defaultCanvasScale;
 
-  TripGalleryItem get _trip =>
-      tripGalleryItems.firstWhere((trip) => trip.slug == _tripSlug);
+  TripGalleryItem get _trip => TripCatalogStore.instance.allTrips.firstWhere(
+    (trip) => trip.slug == _tripSlug,
+  );
 
   double get _stripWidth => _store.layoutFor(_tripSlug).stripWidth;
   double get _leadingTrim => _store.layoutFor(_tripSlug).leadingTrim;
@@ -172,14 +174,15 @@ class _GalleryAdminScreenState extends State<GalleryAdminScreen> {
                 child: DropdownButtonFormField<String>(
                   key: const ValueKey('admin-trip-selector'),
                   initialValue: _tripSlug,
+                  isExpanded: true,
                   dropdownColor: const Color(0xFF352520),
                   style: const TextStyle(color: EverAfterColors.paper),
                   decoration: _fieldDecoration('Trip'),
                   items: <DropdownMenuItem<String>>[
-                    for (final trip in tripGalleryItems)
+                    for (final trip in TripCatalogStore.instance.allTrips)
                       DropdownMenuItem(
                         value: trip.slug,
-                        child: Text(trip.name),
+                        child: Text(trip.name, overflow: TextOverflow.ellipsis),
                       ),
                   ],
                   onChanged: (slug) {
@@ -1008,7 +1011,7 @@ class _GalleryAdminScreenState extends State<GalleryAdminScreen> {
                           padding: EdgeInsets.all(math.max(5, width * 0.14)),
                           child: Transform.scale(
                             scale: previewEdit.zoom,
-                            child: Image.asset(
+                            child: memoryImage(
                               previewEdit.assetPath,
                               fit: BoxFit.cover,
                               alignment: Alignment(
@@ -1413,7 +1416,7 @@ class _GalleryAdminScreenState extends State<GalleryAdminScreen> {
               borderRadius: BorderRadius.circular(5),
               child: SizedBox(
                 width: 54,
-                child: Image.asset(
+                child: memoryImage(
                   effectivePhotoPaths[index],
                   fit: BoxFit.cover,
                 ),
@@ -1724,7 +1727,7 @@ class _GalleryAdminScreenState extends State<GalleryAdminScreen> {
                                             ClipRRect(
                                               borderRadius:
                                                   BorderRadius.circular(6),
-                                              child: Image.asset(
+                                              child: memoryImage(
                                                 assetPath,
                                                 fit: BoxFit.cover,
                                               ),
@@ -2502,7 +2505,7 @@ class _PhotoCropEditor extends StatelessWidget {
                                 },
                                 child: Transform.scale(
                                   scale: edit.zoom,
-                                  child: Image.asset(
+                                  child: memoryImage(
                                     edit.assetPath,
                                     fit: BoxFit.cover,
                                     alignment: Alignment(

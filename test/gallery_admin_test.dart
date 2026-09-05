@@ -2,14 +2,20 @@ import 'dart:math' as math;
 
 import 'package:everafter/data/gallery_layout.dart';
 import 'package:everafter/data/gallery_memory_content.dart';
+import 'package:everafter/data/trip_catalog_store.dart';
 import 'package:everafter/screens/gallery_admin_screen.dart';
 import 'package:everafter/widgets/gallery_trinket_image.dart';
-import 'package:everafter/widgets/trip_gallery.dart';
 import 'package:everafter/widgets/trip_journey.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  setUpAll(() async {
+    SharedPreferences.setMockInitialValues(<String, Object>{});
+    await TripCatalogStore.instance.load();
+  });
+
   testWidgets('selected frames and trinkets resize from a drag handle', (
     tester,
   ) async {
@@ -201,7 +207,7 @@ void main() {
         .layoutFor('japan')
         .frames
         .first;
-    final japanTrip = tripGalleryItems.firstWhere(
+    final japanTrip = TripCatalogStore.instance.allTrips.firstWhere(
       (trip) => trip.slug == 'japan',
     );
     final allPhotoChoices = galleryPhotoChoicesFor(japanTrip);
@@ -311,7 +317,7 @@ void main() {
   ) async {
     final store = GalleryLayoutStore.instance;
     addTearDown(() => store.resetTrip('japan'));
-    final trip = tripGalleryItems.first;
+    final trip = TripCatalogStore.instance.allTrips.first;
     final frame = store.layoutFor('japan').frames.first;
     final photoPath = galleryPhotoChoicesFor(trip).last;
     store.updateFrame(

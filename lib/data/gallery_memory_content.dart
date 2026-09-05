@@ -1,11 +1,5 @@
-import 'package:everafter/data/bali_memory_collection.dart';
-import 'package:everafter/data/china_memory_collection.dart';
-import 'package:everafter/data/hong_kong_memory_collection.dart';
 import 'package:everafter/data/japan_memory_collection.dart';
-import 'package:everafter/data/south_korea_memory_collection.dart';
-import 'package:everafter/data/sri_lanka_memory_collection.dart';
-import 'package:everafter/data/taiwan_memory_collection.dart';
-import 'package:everafter/widgets/trip_gallery.dart';
+import 'package:everafter/data/trip_catalog_store.dart';
 
 JapanMemoryLocation? galleryMemoryLocationFor(
   String tripSlug,
@@ -19,16 +13,7 @@ JapanMemoryLocation? galleryMemoryLocationFor(
 }
 
 List<JapanMemoryLocation> galleryMemoryLocationsFor(String tripSlug) {
-  return switch (tripSlug) {
-    'bali' => baliMemoryLocations,
-    'japan' => japanMemoryLocations,
-    'china' => chinaMemoryLocations,
-    'sri-lanka' => sriLankaMemoryLocations,
-    'hong-kong' => hongKongMemoryLocations,
-    'taiwan' => taiwanMemoryLocations,
-    'south-korea' => southKoreaMemoryLocations,
-    _ => const <JapanMemoryLocation>[],
-  };
+  return TripCatalogStore.instance.memoryLocationsFor(tripSlug);
 }
 
 List<JapanMemoryAsset> defaultGalleryMediaFor(

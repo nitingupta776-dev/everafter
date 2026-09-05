@@ -68,6 +68,9 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/data/gallery_layouts.json
+    - assets/data/trips.json
+    - assets/data/artifacts.json
+    - assets/data/memory_collections.json
     - assets/audio/globe-entrance-swell.wav
     - assets/audio/trip-card-zoom.wav
     - assets/video/public-demo-memory.mp4
@@ -82,6 +85,27 @@ flutter:
     - assets/textures/warm_linen_canvas_visible.jpg
     - assets/textures/red_damask_gallery_wall.jpeg
     - assets/licenses/
+    - assets/memories/
+    - assets/memories/alaska/
+    - assets/memories/bangkok/
+    - assets/memories/belize/
+    - assets/memories/costa_maya/
+    - assets/memories/cozumel/
+    - assets/memories/disneyland/
+    - assets/memories/kasauli/
+    - assets/memories/los_angles/
+    - assets/memories/montreal/
+    - assets/memories/niagara/
+    - assets/memories/phuket/
+    - assets/memories/portland/
+    - assets/memories/quebec/
+    - assets/memories/roatan/
+    - assets/memories/toronto/
+    - assets/memories/tulip_farms/
+    - assets/memories/universal_studios/
+    - assets/memories/vegas/
+    - assets/memories/victoria/
+    - assets/memories/yukon/
 
   fonts:
     - family: ErraticCursive

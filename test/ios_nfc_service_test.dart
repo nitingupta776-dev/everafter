@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:everafter/app.dart';
+import 'package:everafter/data/trip_catalog_store.dart';
 import 'package:everafter/services/nfc_configuration.dart';
 import 'package:everafter/services/ios_nfc_service.dart';
 import 'package:everafter/services/nfc_service.dart';
@@ -9,11 +10,17 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 const _japanUid = '04:00:00:00:00:04';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUpAll(() async {
+    SharedPreferences.setMockInitialValues(<String, Object>{});
+    await TripCatalogStore.instance.load();
+  });
 
   test(
     'iOS NFC service normalizes native scan into the shared UID stream',

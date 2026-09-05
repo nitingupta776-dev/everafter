@@ -1,10 +1,10 @@
+import 'package:everafter/data/trip_catalog_store.dart';
 import 'package:everafter/data/trip_repository.dart';
 import 'package:everafter/widgets/museum_widgets.dart';
 import 'package:everafter/widgets/trip_gallery.dart';
 import 'package:everafter/screens/trip_experience_screen.dart';
 import 'package:everafter/services/nfc_configuration.dart';
 import 'package:everafter/services/nfc_service_provider.dart';
-import 'package:everafter/state/museum_controller.dart';
 import 'package:everafter/theme/everafter_theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -125,26 +125,12 @@ class _IdleScreenState extends ConsumerState<IdleScreen> {
     }
   }
 
-  Future<void> _scanMagnet() async {
-    final message = await ref
-        .read(museumControllerProvider.notifier)
-        .requestNfcScan();
-    if (!mounted || message == null) {
-      return;
-    }
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(content: Text(message), behavior: SnackBarBehavior.floating),
-      );
-  }
-
   Future<void> _showNfcShortcutSetup() async {
     final repository = ref.read(tripRepositoryProvider);
     final links = <({String name, String url})>[];
     for (final artifact in repository.artifacts) {
       TripGalleryItem? matchedTrip;
-      for (final trip in tripGalleryItems) {
+      for (final trip in TripCatalogStore.instance.allTrips) {
         if (trip.name == artifact.place) {
           matchedTrip = trip;
           break;
@@ -235,10 +221,6 @@ class _IdleScreenState extends ConsumerState<IdleScreen> {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final isIos = !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
-    final isScanning = ref.watch(
-      museumControllerProvider.select((museum) => museum.isScanning),
-    );
-
     return PaperScaffold(
       includeDust: true,
       backgroundAsset: 'assets/textures/warm_linen_canvas_visible.jpg',
@@ -251,7 +233,14 @@ class _IdleScreenState extends ConsumerState<IdleScreen> {
               children: <Widget>[
                 Text('MUSEUM OF TRAVELS', style: textTheme.titleLarge),
                 const SizedBox(width: 14),
-                Text('12 TRIPS · DRAG TO EXPLORE', style: textTheme.labelSmall),
+                ListenableBuilder(
+                  listenable: TripCatalogStore.instance,
+                  builder: (context, _) => Text(
+                    '${TripCatalogStore.instance.trips.length} TRIPS · '
+                    'DRAG TO EXPLORE',
+                    style: textTheme.labelSmall,
+                  ),
+                ),
                 const Spacer(),
                 IconButton.outlined(
                   key: const ValueKey('gallery-previous'),
@@ -269,30 +258,7 @@ class _IdleScreenState extends ConsumerState<IdleScreen> {
                   visualDensity: VisualDensity.compact,
                 ),
                 const SizedBox(width: 14),
-                if (isIos && nativeIosNfcEnabled)
-                  FilledButton.icon(
-                    key: const ValueKey('scan-magnet'),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: EverAfterColors.burgundy,
-                      foregroundColor: EverAfterColors.paper,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 18,
-                        vertical: 13,
-                      ),
-                    ),
-                    onPressed: isScanning ? null : _scanMagnet,
-                    icon: isScanning
-                        ? const SizedBox.square(
-                            dimension: 17,
-                            child: CircularProgressIndicator(
-                              color: EverAfterColors.paper,
-                              strokeWidth: 2,
-                            ),
-                          )
-                        : const Icon(Icons.nfc, size: 19),
-                    label: Text(isScanning ? 'SCANNING' : 'SCAN MAGNET'),
-                  )
-                else if (isIos)
+                if (isIos)
                   OutlinedButton.icon(
                     key: const ValueKey('nfc-shortcuts-setup'),
                     style: OutlinedButton.styleFrom(

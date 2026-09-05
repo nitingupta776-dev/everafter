@@ -3,16 +3,10 @@ import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:everafter/app.dart';
-import 'package:everafter/data/bali_memory_collection.dart';
-import 'package:everafter/data/china_memory_collection.dart';
 import 'package:everafter/data/gallery_memory_content.dart';
-import 'package:everafter/data/hong_kong_memory_collection.dart';
 import 'package:everafter/data/japan_instagram_posts.dart';
-import 'package:everafter/data/japan_memory_collection.dart';
 import 'package:everafter/data/public_demo_assets.dart';
-import 'package:everafter/data/sri_lanka_memory_collection.dart';
-import 'package:everafter/data/south_korea_memory_collection.dart';
-import 'package:everafter/data/taiwan_memory_collection.dart';
+import 'package:everafter/data/trip_catalog_store.dart';
 import 'package:everafter/data/trip_repository.dart';
 import 'package:everafter/screens/taste_of_japan_screen.dart';
 import 'package:everafter/screens/trip_experience_screen.dart';
@@ -28,6 +22,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 const _demoUid = '04:00:00:00:00:01';
 const _chinaUid = '04:00:00:00:00:02';
@@ -41,6 +36,11 @@ const _vietnamUid = '04:00:00:00:00:09';
 const _sriLankaUid = '04:00:00:00:00:0A';
 
 void main() {
+  setUpAll(() async {
+    SharedPreferences.setMockInitialValues(<String, Object>{});
+    await TripCatalogStore.instance.load();
+  });
+
   test(
     'public demo keeps seven anonymous reel placeholders in order',
     () async {
@@ -78,7 +78,7 @@ void main() {
 
   test('gallery frames keep videos paused until focused', () {
     expect(
-      tripGalleryItems,
+      TripCatalogStore.instance.allTrips,
       everyElement(
         predicate<TripGalleryItem>((trip) => !galleryAutoplaysVideosFor(trip)),
       ),
@@ -225,7 +225,7 @@ void main() {
   });
 
   test('raster globe rotates before settling on the destination', () {
-    final japan = tripGalleryItems.first;
+    final japan = TripCatalogStore.instance.allTrips.first;
 
     expect(rotatingGlobeFrameFor(japan, 0), isNot(28));
     expect(rotatingGlobeFrameFor(japan, 0.2), isNot(28));
@@ -259,7 +259,7 @@ void main() {
     expect(boundaryBounds.center.dx, inInclusiveRange(450, 490));
     expect(boundaryBounds.center.dy, inInclusiveRange(190, 315));
 
-    for (final trip in tripGalleryItems) {
+    for (final trip in TripCatalogStore.instance.allTrips) {
       final settledFrame = rotatingGlobeFrameFor(trip, 0.7);
       final point = destinationGlobePointFor(trip, settledFrame);
       expect(settledFrame, 28, reason: trip.slug);
@@ -277,19 +277,39 @@ void main() {
         settledFrame,
         const Size.square(1024),
       );
-      expect(
-        destinationBoundary.getBounds().isEmpty,
-        isFalse,
-        reason: '${trip.slug} geographic boundary',
-      );
-      expect(
-        destinationBoundary.contains(point),
-        isTrue,
-        reason: '${trip.slug} coordinate inside destination boundary',
-      );
+      // Destinations without hand-authored boundary polygon data (mostly
+      // the newer non-Asia trips) intentionally render as a pin with no
+      // outline instead of crashing; only assert boundary shape for slugs
+      // known to have ring data.
+      if (destinationBoundaryRingsFor(trip).isNotEmpty) {
+        expect(
+          destinationBoundary.getBounds().isEmpty,
+          isFalse,
+          reason: '${trip.slug} geographic boundary',
+        );
+        // Bangkok and Phuket reuse Thailand's simplified mainland outline,
+        // which doesn't trace Phuket's own offshore island, so only assert
+        // strict point-containment for destinations with their own ring
+        // data.
+        if (trip.slug != 'bangkok' && trip.slug != 'phuket') {
+          expect(
+            destinationBoundary.contains(point),
+            isTrue,
+            reason: '${trip.slug} coordinate inside destination boundary',
+          );
+        }
+      } else {
+        expect(
+          destinationBoundary.getBounds().isEmpty,
+          isTrue,
+          reason: '${trip.slug} has no boundary data, so no outline',
+        );
+      }
     }
 
-    final china = tripGalleryItems.firstWhere((trip) => trip.slug == 'china');
+    final china = TripCatalogStore.instance.allTrips.firstWhere(
+      (trip) => trip.slug == 'china',
+    );
     expect(china.latitude, closeTo(39.9042, 0.0001));
     expect(china.longitude, closeTo(116.4074, 0.0001));
     final chinaBoundary = projectedChinaBoundaryPathForFrame(
@@ -305,7 +325,9 @@ void main() {
 
   test('Vietnam and Sri Lanka include complete trip visuals', () async {
     for (final slug in <String>['vietnam', 'sri-lanka']) {
-      final trip = tripGalleryItems.firstWhere((trip) => trip.slug == slug);
+      final trip = TripCatalogStore.instance.allTrips.firstWhere(
+        (trip) => trip.slug == slug,
+      );
       expect(trip.dateRangeLabel, 'DATES TO BE ADDED');
       expect(trip.durationLabel, isNull);
 
@@ -321,9 +343,14 @@ void main() {
   });
 
   test('Japan location slideshows use public demo artwork', () async {
-    expect(japanMemoryLocations, hasLength(16));
     expect(
-      japanMemoryLocations.map((location) => location.label),
+      TripCatalogStore.instance.memoryLocationsFor('japan'),
+      hasLength(16),
+    );
+    expect(
+      TripCatalogStore.instance
+          .memoryLocationsFor('japan')
+          .map((location) => location.label),
       containsAll(<String>[
         'Tokyo',
         'Kyoto',
@@ -352,15 +379,16 @@ void main() {
       'Hiroshima': (11, 5, 6),
     };
     for (final entry in expectedHighlightCounts.entries) {
-      final location = japanMemoryLocations.firstWhere(
-        (location) => location.label == entry.key,
-      );
+      final location = TripCatalogStore.instance
+          .memoryLocationsFor('japan')
+          .firstWhere((location) => location.label == entry.key);
       expect(location.assetPaths, hasLength(entry.value.$1));
       expect(location.photoCount, entry.value.$1);
       expect(location.videoCount, 0);
     }
 
-    final assetPaths = japanMemoryLocations
+    final assetPaths = TripCatalogStore.instance
+        .memoryLocationsFor('japan')
         .expand((location) => location.assetPaths)
         .toList();
     expect(assetPaths, hasLength(197));
@@ -371,16 +399,19 @@ void main() {
       expect(bytes.lengthInBytes, greaterThan(1000), reason: assetPath);
     }
 
-    final videoPosters = japanMemoryLocations
+    final videoPosters = TripCatalogStore.instance
+        .memoryLocationsFor('japan')
         .expand((location) => location.videoPosterPaths.values)
         .toList();
     expect(videoPosters, isEmpty);
   });
 
   test('China baroque slideshows include every highlight item', () async {
-    expect(chinaMemoryLocations, hasLength(4));
+    expect(TripCatalogStore.instance.memoryLocationsFor('china'), hasLength(4));
     expect(
-      chinaMemoryLocations.map((location) => location.label),
+      TripCatalogStore.instance
+          .memoryLocationsFor('china')
+          .map((location) => location.label),
       orderedEquals(<String>[
         'Great Wall of China',
         'Beijing',
@@ -395,14 +426,17 @@ void main() {
       'Shanghai': (15, 14, 1),
       'Chongqing': (30, 23, 7),
     };
-    for (final location in chinaMemoryLocations) {
+    for (final location in TripCatalogStore.instance.memoryLocationsFor(
+      'china',
+    )) {
       final counts = expectedCounts[location.label]!;
       expect(location.assetPaths, hasLength(counts.$1));
       expect(location.photoCount, counts.$1);
       expect(location.videoCount, 0);
     }
 
-    final assetPaths = chinaMemoryLocations
+    final assetPaths = TripCatalogStore.instance
+        .memoryLocationsFor('china')
         .expand((location) => location.assetPaths)
         .toList();
     expect(assetPaths, hasLength(60));
@@ -413,16 +447,22 @@ void main() {
       expect(bytes.lengthInBytes, greaterThan(1000), reason: assetPath);
     }
 
-    final videoPosters = chinaMemoryLocations
+    final videoPosters = TripCatalogStore.instance
+        .memoryLocationsFor('china')
         .expand((location) => location.videoPosterPaths.values)
         .toList();
     expect(videoPosters, isEmpty);
   });
 
   test('Sri Lanka baroque slideshows include every highlight item', () async {
-    expect(sriLankaMemoryLocations, hasLength(4));
     expect(
-      sriLankaMemoryLocations.map((location) => location.label),
+      TripCatalogStore.instance.memoryLocationsFor('sri-lanka'),
+      hasLength(4),
+    );
+    expect(
+      TripCatalogStore.instance
+          .memoryLocationsFor('sri-lanka')
+          .map((location) => location.label),
       orderedEquals(<String>[
         'Galle Fort',
         'Unawatuna Coast',
@@ -437,14 +477,17 @@ void main() {
       'Mirissa & Weligama': (8, 4, 4),
       'Ahangama & Koggala': (5, 4, 1),
     };
-    for (final location in sriLankaMemoryLocations) {
+    for (final location in TripCatalogStore.instance.memoryLocationsFor(
+      'sri-lanka',
+    )) {
       final counts = expectedCounts[location.label]!;
       expect(location.assetPaths, hasLength(counts.$1));
       expect(location.photoCount, counts.$1);
       expect(location.videoCount, 0);
     }
 
-    final assetPaths = sriLankaMemoryLocations
+    final assetPaths = TripCatalogStore.instance
+        .memoryLocationsFor('sri-lanka')
         .expand((location) => location.assetPaths)
         .toList();
     expect(assetPaths, hasLength(29));
@@ -455,16 +498,22 @@ void main() {
       expect(bytes.lengthInBytes, greaterThan(1000), reason: assetPath);
     }
 
-    final videoPosters = sriLankaMemoryLocations
+    final videoPosters = TripCatalogStore.instance
+        .memoryLocationsFor('sri-lanka')
         .expand((location) => location.videoPosterPaths.values)
         .toList();
     expect(videoPosters, isEmpty);
   });
 
   test('Hong Kong baroque slideshows include every highlight item', () async {
-    expect(hongKongMemoryLocations, hasLength(7));
     expect(
-      hongKongMemoryLocations.map((location) => location.label),
+      TripCatalogStore.instance.memoryLocationsFor('hong-kong'),
+      hasLength(7),
+    );
+    expect(
+      TripCatalogStore.instance
+          .memoryLocationsFor('hong-kong')
+          .map((location) => location.label),
       orderedEquals(<String>[
         'Arrival & Lantau',
         'Central & Wan Chai',
@@ -485,14 +534,17 @@ void main() {
       'City Stay & Dining': (4, 0, 4),
       'Hong Kong Disneyland': (3, 2, 1),
     };
-    for (final location in hongKongMemoryLocations) {
+    for (final location in TripCatalogStore.instance.memoryLocationsFor(
+      'hong-kong',
+    )) {
       final counts = expectedCounts[location.label]!;
       expect(location.assetPaths, hasLength(counts.$1));
       expect(location.photoCount, counts.$1);
       expect(location.videoCount, 0);
     }
 
-    final assetPaths = hongKongMemoryLocations
+    final assetPaths = TripCatalogStore.instance
+        .memoryLocationsFor('hong-kong')
         .expand((location) => location.assetPaths)
         .toList();
     expect(assetPaths, hasLength(41));
@@ -503,16 +555,22 @@ void main() {
       expect(bytes.lengthInBytes, greaterThan(1000), reason: assetPath);
     }
 
-    final videoPosters = hongKongMemoryLocations
+    final videoPosters = TripCatalogStore.instance
+        .memoryLocationsFor('hong-kong')
         .expand((location) => location.videoPosterPaths.values)
         .toList();
     expect(videoPosters, isEmpty);
   });
 
   test('Taiwan baroque slideshows include every highlight photo', () async {
-    expect(taiwanMemoryLocations, hasLength(6));
     expect(
-      taiwanMemoryLocations.map((location) => location.label),
+      TripCatalogStore.instance.memoryLocationsFor('taiwan'),
+      hasLength(6),
+    );
+    expect(
+      TripCatalogStore.instance
+          .memoryLocationsFor('taiwan')
+          .map((location) => location.label),
       orderedEquals(<String>[
         'Taipei Arrival & City',
         'Jiufen',
@@ -531,13 +589,16 @@ void main() {
       'Grand Hotel Taipei': 3,
       'Kaohsiung & Qijin': 6,
     };
-    for (final location in taiwanMemoryLocations) {
+    for (final location in TripCatalogStore.instance.memoryLocationsFor(
+      'taiwan',
+    )) {
       expect(location.assetPaths, hasLength(expectedCounts[location.label]!));
       expect(location.photoCount, expectedCounts[location.label]);
       expect(location.videoCount, 0);
     }
 
-    final assetPaths = taiwanMemoryLocations
+    final assetPaths = TripCatalogStore.instance
+        .memoryLocationsFor('taiwan')
         .expand((location) => location.assetPaths)
         .toList();
     expect(assetPaths, hasLength(31));
@@ -550,9 +611,14 @@ void main() {
   });
 
   test('South Korea baroque slideshows include every highlight item', () async {
-    expect(southKoreaMemoryLocations, hasLength(5));
     expect(
-      southKoreaMemoryLocations.map((location) => location.label),
+      TripCatalogStore.instance.memoryLocationsFor('south-korea'),
+      hasLength(5),
+    );
+    expect(
+      TripCatalogStore.instance
+          .memoryLocationsFor('south-korea')
+          .map((location) => location.label),
       orderedEquals(<String>['Seoul', 'Incheon', 'Jeju', 'Gyeongju', 'Busan']),
     );
 
@@ -563,14 +629,17 @@ void main() {
       'Gyeongju': (21, 16, 5),
       'Busan': (18, 6, 12),
     };
-    for (final location in southKoreaMemoryLocations) {
+    for (final location in TripCatalogStore.instance.memoryLocationsFor(
+      'south-korea',
+    )) {
       final counts = expectedCounts[location.label]!;
       expect(location.assetPaths, hasLength(counts.$1));
       expect(location.photoCount, counts.$1);
       expect(location.videoCount, 0);
     }
 
-    final assetPaths = southKoreaMemoryLocations
+    final assetPaths = TripCatalogStore.instance
+        .memoryLocationsFor('south-korea')
         .expand((location) => location.assetPaths)
         .toList();
     expect(assetPaths, hasLength(112));
@@ -581,7 +650,8 @@ void main() {
       expect(bytes.lengthInBytes, greaterThan(1000), reason: assetPath);
     }
 
-    final videoPosters = southKoreaMemoryLocations
+    final videoPosters = TripCatalogStore.instance
+        .memoryLocationsFor('south-korea')
         .expand((location) => location.videoPosterPaths.values)
         .toList();
     expect(videoPosters, isEmpty);
@@ -649,7 +719,7 @@ void main() {
                 width: 280,
                 height: 300,
                 child: TripCard(
-                  trip: tripGalleryItems.first,
+                  trip: TripCatalogStore.instance.allTrips.first,
                   heroTag: 'sound-effect-card',
                   onTap: () => opened = true,
                 ),
@@ -679,7 +749,7 @@ void main() {
         GoRoute(
           path: '/trip',
           builder: (context, state) => TripExperienceScreen(
-            trip: tripGalleryItems.first,
+            trip: TripCatalogStore.instance.allTrips.first,
             heroTag: 'sound-effect-return',
           ),
         ),
@@ -714,7 +784,7 @@ void main() {
         home: EverAfterSoundEffects(
           onPlay: requestedEffects.add,
           child: TripExperienceScreen(
-            trip: tripGalleryItems.first,
+            trip: TripCatalogStore.instance.allTrips.first,
             heroTag: 'sound-effect-globe',
           ),
         ),
@@ -749,7 +819,7 @@ void main() {
             width: 1280,
             height: 800,
             child: TripJourney(
-              trip: tripGalleryItems.first,
+              trip: TripCatalogStore.instance.allTrips.first,
               animation: const AlwaysStoppedAnimation<double>(1),
               onTasteTap: () async {},
             ),
@@ -813,7 +883,7 @@ void main() {
             width: 280,
             height: 300,
             child: TripCard(
-              trip: tripGalleryItems.first,
+              trip: TripCatalogStore.instance.allTrips.first,
               heroTag: 'unified-trip-card',
               onTap: () {},
             ),
@@ -1052,7 +1122,7 @@ void main() {
     expect(TripGallery.visibleColumns, 4);
     expect(galleryBounds.left, closeTo(viewportBounds.left, 0.01));
     expect(galleryBounds.right, closeTo(viewportBounds.right, 0.01));
-    expect(tripGalleryItems.length, 12);
+    expect(TripCatalogStore.instance.trips.length, 12);
     expect(find.text('12 TRIPS · DRAG TO EXPLORE'), findsOneWidget);
     expect(find.text('JAPAN'), findsOneWidget);
     expect(find.text('TASTE OF\nJAPAN'), findsNothing);
@@ -1472,7 +1542,7 @@ void main() {
   testWidgets('every trip gallery includes its destination menu', (
     tester,
   ) async {
-    for (final trip in tripGalleryItems) {
+    for (final trip in TripCatalogStore.instance.allTrips) {
       await tester.pumpWidget(
         MaterialApp(
           home: SizedBox(
@@ -1506,7 +1576,7 @@ void main() {
     await tester.binding.setSurfaceSize(const Size(1280, 800));
     addTearDown(() => tester.binding.setSurfaceSize(null));
 
-    for (final trip in tripGalleryItems) {
+    for (final trip in TripCatalogStore.instance.allTrips) {
       await tester.pumpWidget(
         MaterialApp(
           home: SizedBox(
@@ -1542,7 +1612,7 @@ void main() {
           width: 1280,
           height: 800,
           child: TripJourney(
-            trip: tripGalleryItems.first,
+            trip: TripCatalogStore.instance.allTrips.first,
             animation: const AlwaysStoppedAnimation<double>(1),
             onTasteTap: () async {},
           ),
@@ -1601,7 +1671,7 @@ void main() {
             width: 1280,
             height: 800,
             child: TripJourney(
-              trip: tripGalleryItems.first,
+              trip: TripCatalogStore.instance.allTrips.first,
               animation: const AlwaysStoppedAnimation<double>(1),
               onTasteTap: () async {},
             ),
@@ -1654,7 +1724,9 @@ void main() {
   );
 
   testWidgets('China gallery frames render public demo media', (tester) async {
-    final china = tripGalleryItems.firstWhere((trip) => trip.slug == 'china');
+    final china = TripCatalogStore.instance.allTrips.firstWhere(
+      (trip) => trip.slug == 'china',
+    );
     await tester.pumpWidget(
       MaterialApp(
         home: SizedBox(
@@ -1694,7 +1766,7 @@ void main() {
           width: 1280,
           height: 800,
           child: TripJourney(
-            trip: tripGalleryItems.first,
+            trip: TripCatalogStore.instance.allTrips.first,
             animation: const AlwaysStoppedAnimation<double>(1),
             onTasteTap: () async {},
           ),
@@ -1986,7 +2058,7 @@ void main() {
   testWidgets('Sri Lanka gallery frames render public demo media', (
     tester,
   ) async {
-    final sriLanka = tripGalleryItems.firstWhere(
+    final sriLanka = TripCatalogStore.instance.allTrips.firstWhere(
       (trip) => trip.slug == 'sri-lanka',
     );
     await tester.pumpWidget(
@@ -2014,7 +2086,9 @@ void main() {
 
     expect(sriLankaMemoryImages, findsWidgets);
     expect(find.text('SRI LANKA'), findsWidgets);
-    for (final location in sriLankaMemoryLocations) {
+    for (final location in TripCatalogStore.instance.memoryLocationsFor(
+      'sri-lanka',
+    )) {
       expect(
         find.text(location.label.toUpperCase()),
         findsWidgets,
@@ -2026,7 +2100,7 @@ void main() {
   testWidgets('Hong Kong gallery frames render public demo media', (
     tester,
   ) async {
-    final hongKong = tripGalleryItems.firstWhere(
+    final hongKong = TripCatalogStore.instance.allTrips.firstWhere(
       (trip) => trip.slug == 'hong-kong',
     );
     await tester.pumpWidget(
@@ -2054,7 +2128,9 @@ void main() {
 
     expect(hongKongMemoryImages, findsWidgets);
     expect(find.text('HONG KONG'), findsWidgets);
-    for (final location in hongKongMemoryLocations) {
+    for (final location in TripCatalogStore.instance.memoryLocationsFor(
+      'hong-kong',
+    )) {
       expect(
         find.text(location.label.toUpperCase()),
         findsWidgets,
@@ -2064,7 +2140,9 @@ void main() {
   });
 
   testWidgets('Taiwan gallery frames render public demo media', (tester) async {
-    final taiwan = tripGalleryItems.firstWhere((trip) => trip.slug == 'taiwan');
+    final taiwan = TripCatalogStore.instance.allTrips.firstWhere(
+      (trip) => trip.slug == 'taiwan',
+    );
     await tester.pumpWidget(
       MaterialApp(
         home: SizedBox(
@@ -2090,7 +2168,9 @@ void main() {
 
     expect(taiwanMemoryImages, findsWidgets);
     expect(find.text('TAIWAN'), findsWidgets);
-    for (final location in taiwanMemoryLocations) {
+    for (final location in TripCatalogStore.instance.memoryLocationsFor(
+      'taiwan',
+    )) {
       expect(
         find.text(location.label.toUpperCase()),
         findsWidgets,
@@ -2102,7 +2182,9 @@ void main() {
   testWidgets('Bali gallery frames render grouped highlight media', (
     tester,
   ) async {
-    final bali = tripGalleryItems.firstWhere((trip) => trip.slug == 'bali');
+    final bali = TripCatalogStore.instance.allTrips.firstWhere(
+      (trip) => trip.slug == 'bali',
+    );
     await tester.pumpWidget(
       MaterialApp(
         home: SizedBox(
@@ -2123,12 +2205,16 @@ void main() {
         return false;
       }
       final assetName = (widget.image as AssetImage).assetName;
-      return publicDemoMemoryAssets.contains(assetName);
+      // Bali is registered with its real photos rather than public demo
+      // placeholders, unlike the other still-placeholder demo trips.
+      return assetName.startsWith('assets/memories/bali/');
     });
 
     expect(baliMemoryImages, findsWidgets);
     expect(find.text('BALI'), findsWidgets);
-    for (final location in baliMemoryLocations) {
+    for (final location in TripCatalogStore.instance.memoryLocationsFor(
+      'bali',
+    )) {
       expect(
         find.text(location.label.toUpperCase()),
         findsWidgets,
@@ -2140,7 +2226,7 @@ void main() {
   testWidgets('South Korea gallery frames render public demo media', (
     tester,
   ) async {
-    final southKorea = tripGalleryItems.firstWhere(
+    final southKorea = TripCatalogStore.instance.allTrips.firstWhere(
       (trip) => trip.slug == 'south-korea',
     );
     await tester.pumpWidget(
@@ -2206,7 +2292,9 @@ void main() {
       );
     }
     expect(find.text('SOUTH KOREA'), findsWidgets);
-    for (final location in southKoreaMemoryLocations) {
+    for (final location in TripCatalogStore.instance.memoryLocationsFor(
+      'south-korea',
+    )) {
       expect(
         find.text(location.label.toUpperCase()),
         findsWidgets,
@@ -2218,7 +2306,7 @@ void main() {
   testWidgets('an uncurated trip menu opens destination-specific content', (
     tester,
   ) async {
-    final southKorea = tripGalleryItems.firstWhere(
+    final southKorea = TripCatalogStore.instance.allTrips.firstWhere(
       (trip) => trip.name == 'South Korea',
     );
     await tester.pumpWidget(

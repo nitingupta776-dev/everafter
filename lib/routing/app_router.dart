@@ -1,3 +1,4 @@
+import 'package:everafter/data/trip_catalog_store.dart';
 import 'package:everafter/data/trip_repository.dart';
 import 'package:everafter/screens/collection_screen.dart';
 import 'package:everafter/screens/exhibit_screen.dart';
@@ -5,10 +6,10 @@ import 'package:everafter/screens/gallery_admin_screen.dart';
 import 'package:everafter/screens/idle_screen.dart';
 import 'package:everafter/screens/intro_screen.dart';
 import 'package:everafter/screens/nfc_trip_experience_screen.dart';
+import 'package:everafter/screens/trip_admin_screen.dart';
 import 'package:everafter/screens/trip_experience_screen.dart';
 import 'package:everafter/screens/taste_of_japan_screen.dart';
 import 'package:everafter/state/museum_controller.dart';
-import 'package:everafter/widgets/trip_gallery.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -34,6 +35,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         pageBuilder: (context, state) => NoTransitionPage<void>(
           key: state.pageKey,
           child: const GalleryAdminScreen(),
+        ),
+      ),
+      GoRoute(
+        path: '/admin/trips',
+        pageBuilder: (context, state) => NoTransitionPage<void>(
+          key: state.pageKey,
+          child: const TripAdminScreen(),
         ),
       ),
       GoRoute(
@@ -147,14 +155,15 @@ CustomTransitionPage<void> _fadePage(GoRouterState state, Widget child) {
 }
 
 TripGalleryItem _tripForSlug(String? slug) {
-  return tripGalleryItems.firstWhere(
+  final allTrips = TripCatalogStore.instance.allTrips;
+  return allTrips.firstWhere(
     (trip) => trip.slug == slug,
-    orElse: () => tripGalleryItems.first,
+    orElse: () => allTrips.first,
   );
 }
 
 TripGalleryItem? _tripForPlace(String place) {
-  for (final trip in tripGalleryItems) {
+  for (final trip in TripCatalogStore.instance.allTrips) {
     if (trip.name == place) {
       return trip;
     }
